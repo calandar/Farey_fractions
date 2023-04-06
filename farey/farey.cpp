@@ -4,6 +4,7 @@
 
 using namespace std;
 
+
 int64_t inverse_modulo(int64_t num, int64_t mod);
 
 class Farey_fraction {
@@ -136,10 +137,6 @@ int64_t inverse_modulo(int64_t num, int64_t mod) { // используем ма�
     return bin_pow(num, mod - 2, mod); // !!!! int?
 }
 
-//istream& operator >> (istream& os, Farey_fraction& f) {
-//    int64_t numer, denom;
-
-//}
 
 ostream& operator << (ostream& os, const Farey_fraction& f) {
     os << f.get_numerator() << '/' << f.get_denominator();
