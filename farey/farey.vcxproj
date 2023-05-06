@@ -140,7 +140,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="farey.cpp" />
+    <ClCompile Include="testing.cpp" />
+    <ClCompile Include="Farey_core.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Farey_core.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
