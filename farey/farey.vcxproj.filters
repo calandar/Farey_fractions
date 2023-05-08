@@ -21,9 +21,15 @@
     <ClCompile Include="Farey_core.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="BigInt.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Farey_core.h">
+      <Filter>Исходные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="BigInt.h">
       <Filter>Исходные файлы</Filter>
     </ClInclude>
   </ItemGroup>
