@@ -56,7 +56,7 @@ class BigInt {
         BigInt& operator/=(const std::string&);
         BigInt& operator%=(const std::string&);
 
-        // Increment and decrement operators:
+        // Increment && decrement operators:
         BigInt& operator++();       // pre-increment
         BigInt& operator--();       // pre-decrement
         BigInt operator++(int);     // post-increment
@@ -97,3 +97,5 @@ class BigInt {
 };
 
 BigInt abs(const BigInt& num);
+void strip_leading_zeroes(std::string& num);
+BigInt big_pow10(size_t exp);
