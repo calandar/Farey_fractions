@@ -1,0 +1,9 @@
+Values: 
+First vector 	Second vector
+-0.729     	0.67
+0.9377     	-0.5579
+-0.3837    	 0.09444
+-0.6232    	 0.9858
+0.9929    	 0.9354
+Using Farey fractions: -0.7334
+Using long double: -0.7335

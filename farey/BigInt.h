@@ -97,5 +97,7 @@ class BigInt {
 };
 
 BigInt abs(const BigInt& num);
+BigInt sqrt(const BigInt& num);
 void strip_leading_zeroes(std::string& num);
 BigInt big_pow10(size_t exp);
+BigInt gcd(const BigInt& num1, const BigInt& num2);
