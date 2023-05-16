@@ -41,7 +41,10 @@ namespace UnitTests
 			Assert::IsTrue(f12.get_numerator() == -41 && f12.get_denominator() == 10000, L"7");
 			Farey_fraction f13(_MOD, _N, "-4.01");
 			Assert::IsTrue(f13.get_numerator() == -401 && f13.get_denominator() == 100, L"8");
-
+			Farey_fraction ff2(_MOD, _N, "-0.0001");
+			Assert::IsTrue(ff2.get_numerator() == -1 && ff2.get_denominator() == 10000, L"9");
+			Farey_fraction f15(_MOD, _N, "990.000");
+			Assert::IsTrue(f15.get_numerator() == 990 && f15.get_denominator() == 1, L"10");
 		}
 	};
 

@@ -11,6 +11,9 @@ bool no_overflow(int64_t a, int64_t b) {
 }
 
 int64_t safe_mul(int64_t x, int64_t y, int64_t m) { 
+    bool minus = x > 0 && y < 0 || x < 0 && y > 0;
+    x = abs(x);
+    y = abs(y);
     if (x > y) {
         int64_t tmp = x;
         x = y;
@@ -28,6 +31,7 @@ int64_t safe_mul(int64_t x, int64_t y, int64_t m) {
         iy = (new_iy + iy) % m;
         x >>= 1;
     }
+    if (minus) res *= -1;
     return  res;
 }
 
@@ -46,7 +50,7 @@ void strip_leading_zeroes(std::string& num) {
 
 bool valid_num(const std::string& s)  // минус прилегает плотно, в самом начале, не более чем одна точка
 { 
-    if (s.size() > 8) return false;
+    if (s.size() > 10) return false;
     bool found_dot = false;
     std::string::const_iterator it = s.begin();
     while (it != s.end()) {
@@ -113,27 +117,33 @@ Farey_fraction::Farey_fraction(int64_t m, int64_t n, std::string number) {
         if (count > 4) throw std::invalid_argument("Too much precision");
         bool minus = false;
         if (number[0] == '-') minus = true;
-        int cnt1 = 0;
+        int cnt1 = 0;                           // значащих цифр до точки
+        bool found_non_zero = false;
         for (size_t i = (size_t)minus; i < dot_pos; i++) {
-            if (number[i] == '0') continue;
+            if (!found_non_zero && number[i] == '0') continue;
             cnt1++;
+            found_non_zero = true;
         } 
-        int cnt2 = j - cnt1;
-        if (cnt1 + cnt2 > 3) throw std::invalid_argument("Too much significant digits");
-        size_t first_not_null_pos = 0;
-        for (first_not_null_pos = size_t(minus); first_not_null_pos < number.size(); first_not_null_pos++) {
-            if (number[first_not_null_pos] >= '1' && number[first_not_null_pos] <= '9') {
-                break;
-            }
-            first_not_null_pos++;
+        int cnt2 = 0;
+        for (size_t i = dot_pos + 1; i <= j; i++) {
+            if (cnt1 == 0 && number[i] == '0') continue;  // пропускаем только если до точки не было значащих цифр
+            cnt2++;
         }
+        if (cnt1 + cnt2 > 3) throw std::invalid_argument("Too much significant digits");
         number = number.replace(j + 1 + int((j < dot_pos)), number.size() - j - 1 - int((j < dot_pos)), ""); // УДАЛИЛИ НЕЗНАЧАЩИЕ НУЛИ В КОНЦЕ
         //int denum_pow = number.size() - j;                                            // после запятой только нули, точку надо учесть и не удалять ее
         it = std::find(number.begin(), number.end(), '.');
         size_t dist = std::distance(number.begin(), it);
         int denom_pow = number.size() - dist - 1;
         number = number.replace(dist, 1, "");
+        size_t first_not_null_pos = 0;
+        for (first_not_null_pos = size_t(minus); first_not_null_pos < number.size(); first_not_null_pos++) {
+            if (number[first_not_null_pos] >= '1' && number[first_not_null_pos] <= '9') {
+                break;
+            }
+        }
         number = number.substr(first_not_null_pos, number.size() - first_not_null_pos);
+        if (number == "") number = "0";
         numerator = stoll(number);
         if (minus) numerator *= -1;
         denominator = stoll("1" + std::string(denom_pow, '0'));
@@ -231,6 +241,7 @@ void Farey_fraction::calc() {
     }
     inv %= mod;
     num = safe_mul(numerator, inv, mod);
+    Normalize();
 }
 
 int64_t Farey_fraction::inverse_modulo(int64_t num, int64_t mod) {

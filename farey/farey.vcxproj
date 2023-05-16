@@ -142,9 +142,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="present.cpp" />
     <ClCompile Include="scalar.cpp" />
     <ClCompile Include="Farey_core.cpp" />
-    <ClCompile Include="temp_main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Farey_core.h" />

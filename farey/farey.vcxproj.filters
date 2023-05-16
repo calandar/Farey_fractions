@@ -21,7 +21,7 @@
     <ClCompile Include="scalar.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="temp_main.cpp">
+    <ClCompile Include="present.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
   </ItemGroup>

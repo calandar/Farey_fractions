@@ -53,10 +53,10 @@
 	}
 
 	void vec::add(const std::string& num, std::istream& is) {
-		if (valid_num(num)) {
+		//if (valid_num(num)) {
 			v.push_back(Farey_fraction(mod, N, num));
 			dim++;
-		}
+		//}
 	}
 
 	void vec::read_vec(std::istream& is) {

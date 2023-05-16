@@ -16,35 +16,9 @@ void read_vector(std::vector<long double>& v, std::istream& is = std::cin) {
 
 int main() {
 	std::string op;
-	std::cout << "Desirable precision: ";
-	BigInt mod, N;
-	int prec;
-	std::cin >> prec;
-	std::cout << "Farey fraction parameters: \n1 - Default (20 signs)  \n2 - Default (30 signs) \n3 - Set parameters  \n >>>: ";
-	int params;
-	std::cin >> params;
-	if (params == 1) {
-		mod = _MOD;
-		N = _N;
-		std::cout << "MOD = " << mod << std::endl;
-		std::cout << "N = " << N << std::endl;
-	}
-	else if (params == 2) {
-		mod = _MOD2;
-		N = _N2;
-		std::cout << "MOD = " << mod << std::endl;
-		std::cout << "N = " << N << std::endl;
-	}
-	else if (params == 3) {
-		std::cout << "MOD = ";
-		std::cin >> mod;
-		std::cout << "N = ";
-		std::cin >> N;
-	}
-	else {
-		std::cout << "Unknown command. Exitting..." << std::endl;
-		return -1;
-	}
+	
+	int64_t mod = _MOD, N = _N;
+
 	std::cout << "Input type: \n1 - Console  \n2 - File  \n3 - Random generator (using file)   \n >>>: ";
 	std::ifstream ifs("input_test.txt");
 	std::ofstream ofs("output_test.txt");
@@ -66,7 +40,7 @@ int main() {
 		is->get() >> d;
 		std::string curr;
 		long double ld;
-		std::vector<long double> a1(d);
+		std::vector<long double> a1;
 		for (size_t i = 0; i < d; i++) {
 			is->get() >> curr;
 			std::stringstream ss(curr);
@@ -76,7 +50,7 @@ int main() {
 		}
 		vec b(mod, N);
 		is->get() >> d;
-		std::vector<long double> b1(d);
+		std::vector<long double> b1;
 		for (size_t i = 0; i < d; i++) {
 			is->get() >> curr;
 			std::stringstream ss(curr);
@@ -84,8 +58,10 @@ int main() {
 			ss >> ld;
 			b1.push_back(ld);
 		}
-		os->get() << std::setprecision(prec) << "Using Farey fractions: " << scalar(a, b) << std::endl;
-		os->get() << std::setprecision(prec) << "Using long double: " << scalar(a1, b1) << std::endl;
+		long double s1 = scalar(a, b);
+		long double s2 = scalar(a1, b1);
+		os->get() << std::setprecision(15) << "Using Farey fractions: " << s1 << std::endl;
+		os->get() <<std::setprecision(15) << "Using long double: " << s2 << std::endl;
 	}
 	else {
 		os = ofs;
@@ -107,21 +83,21 @@ int main() {
 		for (size_t i = 0; i < n; i++) {
 			val = unif(re);
 			doubles1.push_back(val);
-			os->get() << std::setprecision(prec) << val << "     ";
-			ss << std::setprecision(prec) << val;
+			os->get() <</* std::setprecision(prec) <<*/ val << "     ";
+			ss << /*std::setprecision(prec) <<*/ val;
 			fracs1.push_back(ss.str());
 			ss.str(std::string()); // clear the stream
 			val = unif(re);
 			doubles2.push_back(val);
-			os->get() << std::setprecision(prec) << val << std::endl;
-			ss << std::setprecision(prec) << val;
+			os->get() <</* std::setprecision(prec) <<*/ val << std::endl;
+			ss << /*std::setprecision(prec) <<*/ val;
 			fracs2.push_back(ss.str());
 			ss.str(std::string()); // clear the stream
 		}
 		vec a(fracs1, mod,N);
 		vec b(fracs2, mod,N);
-		os->get() << std::setprecision(prec) << "Using Farey fractions: " << scalar(a, b) << std::endl;
-		os->get() << std::setprecision(prec) << "Using long double: " << scalar(doubles1, doubles2) << std::endl;
+		os->get() <</* std::setprecision(prec) << */"Using Farey fractions: " << scalar(a, b) << std::endl;
+		os->get() << /*std::setprecision(prec) <<*/ "Using long double: " << scalar(doubles1, doubles2) << std::endl;
 	}
 
 	return 0;
