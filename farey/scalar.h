@@ -4,10 +4,10 @@
 
 class vec {
 public:
-	vec(BigInt m = _MOD, BigInt n = _N);
-	vec(const std::vector<BigInt>&, BigInt m = _MOD, BigInt n = _N);
+	vec(int64_t m = _MOD, int64_t n = _N);
+	vec(const std::vector<int64_t>&, int64_t m = _MOD, int64_t n = _N);
 	vec(const std::vector<Farey_fraction>&);
-	vec(const std::vector<std::string>&, BigInt m = _MOD, BigInt n = _N);
+	vec(const std::vector<std::string>&, int64_t m = _MOD, int64_t n = _N);
 	Farey_fraction& operator [] (size_t);
 	//Farey_fraction& operator = (std::string);
 	void add(const std::string&, std::istream & = std::cin);
@@ -15,12 +15,12 @@ public:
 	void print_vec(std::ostream& = std::cout);
 	//const Farey_fraction& operator [](size_t i) const;
 	int64_t get_dim() const;
-	BigInt get_mod() const;
-	BigInt get_N() const;
+	int64_t get_mod() const;
+	int64_t get_N() const;
 private:
 	int64_t dim;
-	BigInt mod;
-	BigInt N;
+	int64_t mod;
+	int64_t N;
 	std::vector<Farey_fraction> v;
 };
 

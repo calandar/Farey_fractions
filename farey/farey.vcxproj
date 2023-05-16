@@ -142,14 +142,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="BigInt.cpp" />
-    <ClCompile Include="present.cpp" />
     <ClCompile Include="scalar.cpp" />
-    <ClCompile Include="testing.cpp" />
     <ClCompile Include="Farey_core.cpp" />
+    <ClCompile Include="temp_main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="BigInt.h" />
     <ClInclude Include="Farey_core.h" />
     <ClInclude Include="scalar.h" />
   </ItemGroup>

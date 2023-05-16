@@ -2,11 +2,11 @@
 #include <string>
 #include <exception>
 
-	vec::vec(BigInt m, BigInt n){
+	vec::vec(int64_t m, int64_t n){
 		mod = m;
 		N = n;
 	}
-	vec::vec(const std::vector<BigInt>& big_v, BigInt m, BigInt n) {
+	vec::vec(const std::vector<int64_t>& big_v, int64_t m, int64_t n) {
 		mod = m; //.
 		N = n; //.
 		dim = big_v.size();
@@ -26,7 +26,7 @@
 		v = big_v;
 	}
 
-	vec::vec(const std::vector<std::string>& double_v, BigInt m, BigInt n) {
+	vec::vec(const std::vector<std::string>& double_v, int64_t m, int64_t n) {
 		mod = m; // .
 		N = n; // .
 		dim = double_v.size();
@@ -83,10 +83,10 @@
 		os << '>' << std::endl;
 	}
 
-	BigInt vec::get_mod() const {
+	int64_t vec::get_mod() const {
 		return mod;
 	}
-	BigInt vec::get_N() const {
+	int64_t vec::get_N() const {
 		return N;
 	}
 
@@ -103,9 +103,7 @@
 			std::cout << "N-order of vectors differ" << std::endl;
 			return 0;
 		}
-		int64_t tmp_num = 0;
-		int64_t tmp_denom = 1;
-		Farey_fraction res = Farey_fraction(a.get_mod(), a.get_N(), tmp_num, tmp_denom);
+		Farey_fraction res = Farey_fraction(a.get_mod(), a.get_N(), 0, 1);
 		for (size_t i = 0; i < a.get_dim(); i++) {
 			Farey_fraction curr = a[i] * b[i];
 			res += curr;

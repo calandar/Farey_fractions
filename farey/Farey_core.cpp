@@ -1,12 +1,52 @@
 #include "Farey_core.h"
 #include <exception>
+#include <string>
 
-BigInt operator "" _bg(const char* str, size_t sze) {
-    return BigInt(str);
+bool no_overflow(int64_t a, int64_t b) {  
+    int64_t sum = a + b;
+    int64_t ssd = a ^ b;
+    if ((ssd >= 0) && ((ssd ^ sum) < 0))
+        return false; 
+    return true;
 }
 
-bool valid_num(const std::string& s)  // минус прилегает плотно, в самом начале, одна точка
-{
+int64_t safe_mul(int64_t x, int64_t y, int64_t m) { 
+    if (x > y) {
+        int64_t tmp = x;
+        x = y;
+        y = tmp;
+    }
+    int64_t res = 0;
+    int64_t iy = y;
+    while (x) {
+        if (x & 1) {
+            if (!no_overflow(res, iy)) res -= m;
+            res = (res + iy) % m;
+        }
+        int64_t new_iy = iy;
+        if (!no_overflow(new_iy, iy)) new_iy -= m;
+        iy = (new_iy + iy) % m;
+        x >>= 1;
+    }
+    return  res;
+}
+
+
+void strip_leading_zeroes(std::string& num) {
+    size_t i;
+    for (i = 0; i < num.size(); i++)
+        if (num[i] != '0')
+            break;
+
+    if (i == num.size())
+        num = "0";
+    else
+        num = num.substr(i);
+}
+
+bool valid_num(const std::string& s)  // минус прилегает плотно, в самом начале, не более чем одна точка
+{ 
+    if (s.size() > 8) return false;
     bool found_dot = false;
     std::string::const_iterator it = s.begin();
     while (it != s.end()) {
@@ -20,24 +60,25 @@ bool valid_num(const std::string& s)  // минус прилегает плотно, в самом начале,
     else if (!(std::isdigit(*it))) return false;
     ++it;
     }
-return !s.empty() && it == s.end();
+    return (!s.empty() && it == s.end()); // формат строки норм -> далее проверка
+  
 }
 
 Farey_fraction::Farey_fraction(){
     calc();
 }
-Farey_fraction::Farey_fraction(const BigInt& m, const BigInt& n, const BigInt& number) {
+Farey_fraction::Farey_fraction(int64_t m, int64_t n, int64_t number) {
     mod = m;
     N = n;
-    throw_if_bad_params();
+    //throw_if_bad_params();  // ??
     num = number;
     Normalize();
     reverse_calc();
 }
-Farey_fraction::Farey_fraction(const BigInt& m, const BigInt& n, const BigInt& num, const BigInt& denom) {
+Farey_fraction::Farey_fraction(int64_t m, int64_t n, int64_t num, int64_t denom) {
     mod = m;
     N = n;
-    throw_if_bad_params();
+    //throw_if_bad_params(); // ?
     numerator = num;
     denominator = denom;
     Normalize();
@@ -45,69 +86,79 @@ Farey_fraction::Farey_fraction(const BigInt& m, const BigInt& n, const BigInt& n
     
 }
 
-Farey_fraction::Farey_fraction(const BigInt& m, const BigInt& n, std::string number, bool simplify) {
+Farey_fraction::Farey_fraction(int64_t m, int64_t n, std::string number) {
     if (!valid_num(number)) throw std::invalid_argument("Wrong floating point number representation"); // exception !
+    // ПРОВЕРИТЬ: количество знаков после запятой не более 4, количество значащих цифр не больше 3
     mod = m;
     N = n;
-    throw_if_bad_params();
-    strip_leading_zeroes(number); // from bigint.h
-    int i = number.size() - 1;
-    while (i >= 0 && number[i] == '0') {
-        --i;
-    }
-    if (i != number.size()-1) number = number.substr(0, i + 1); // удалили нули спереди и сзади
-    auto it = std::find(number.begin(), number.end(), '.');
+    auto it = std::find(number.begin(), number.end(), '.'); // есть ли точка
+    size_t dot_pos = std::distance(number.begin(), it);
     if (it == number.end()) {
-        numerator = number;
-        denominator = "1";
+        numerator = std::stoll(number);
+        denominator = 1;
     }
     else {
-        size_t j = 0;
+        // точка есть
+        size_t j = number.size() - 1; // Удаляем незначащие нули в конце, в j - позиция последнего НЕ нуля
+        while (j > dot_pos) {
+            if (number[j] != '0') break;
+            j--;
+        }
+        if (number[j] == '.') j--;
+        // 42.0  -> [j] = '.'
+        int count = 0; // ищем сколько цифр после точки
+        for (size_t i = dot_pos + 1; i <= j; i++) {
+            count++;
+        }
+        if (count > 4) throw std::invalid_argument("Too much precision");
         bool minus = false;
-        bool found = false;
-        if (number[j] == '-') {
-            j++;
-            minus = true;
+        if (number[0] == '-') minus = true;
+        int cnt1 = 0;
+        for (size_t i = (size_t)minus; i < dot_pos; i++) {
+            if (number[i] == '0') continue;
+            cnt1++;
+        } 
+        int cnt2 = j - cnt1;
+        if (cnt1 + cnt2 > 3) throw std::invalid_argument("Too much significant digits");
+        size_t first_not_null_pos = 0;
+        for (first_not_null_pos = size_t(minus); first_not_null_pos < number.size(); first_not_null_pos++) {
+            if (number[first_not_null_pos] >= '1' && number[first_not_null_pos] <= '9') {
+                break;
+            }
+            first_not_null_pos++;
         }
-        while (j < number.size() && number[j] == '0') {
-            j++;
-            found = true;
-        }
-        number = number.replace(int(minus), int(found)* (j - int(minus)), "");
+        number = number.replace(j + 1 + int((j < dot_pos)), number.size() - j - 1 - int((j < dot_pos)), ""); // УДАЛИЛИ НЕЗНАЧАЩИЕ НУЛИ В КОНЦЕ
+        //int denum_pow = number.size() - j;                                            // после запятой только нули, точку надо учесть и не удалять ее
         it = std::find(number.begin(), number.end(), '.');
         size_t dist = std::distance(number.begin(), it);
-        BigInt numer = number.replace(dist, 1, "");
-        BigInt denomin = big_pow10(number.size() - dist);
-        
-        if (!simplify) {
-            numerator = numer;
-            denominator = denomin;
-        }
-        else {
-            BigInt g = gcd(numer, denomin);
-            numerator = numer / g;
-            denominator = denomin / g;
-        }
+        int denom_pow = number.size() - dist - 1;
+        number = number.replace(dist, 1, "");
+        number = number.substr(first_not_null_pos, number.size() - first_not_null_pos);
+        numerator = stoll(number);
+        if (minus) numerator *= -1;
+        denominator = stoll("1" + std::string(denom_pow, '0'));
         calc();
     }
 }
 
 Farey_fraction Farey_fraction::operator + (const Farey_fraction& rhs) {
+    if (!no_overflow(num, rhs.get_num())) num -= mod; // проверка на переполнение
     Farey_fraction res(mod, N, (num + rhs.get_num()) % mod);
     return res;
 }
 Farey_fraction Farey_fraction::operator - (const Farey_fraction& rhs) {
+    //if (!no_overflow(num, -rhs.get_num())) num -= mod; // проверка на переполнение ??? нужна ли
     Farey_fraction res(mod, N, (num - rhs.get_num()) % mod);
     return res;
 }
 
 Farey_fraction Farey_fraction::operator * (const Farey_fraction& rhs) {
-    Farey_fraction res(mod, N, (num * rhs.get_num()) % mod);
+    Farey_fraction res(mod, N, safe_mul(num,rhs.get_num(), mod) % mod);
     return res;
 }
 
 Farey_fraction Farey_fraction::operator / (const Farey_fraction& rhs) {
-    Farey_fraction res(mod, N, (num * swapped(rhs).get_num()) % mod);
+    Farey_fraction res(mod, N, safe_mul(num,swapped(rhs).get_num(),mod) % mod);
     return res;
 }
 
@@ -143,37 +194,27 @@ Farey_fraction& Farey_fraction::operator /= (const Farey_fraction& rhs) {
 }
 
 
-BigInt Farey_fraction::get_numerator() const {
+int64_t Farey_fraction::get_numerator() const {
     return numerator;
 }
-BigInt Farey_fraction::get_denominator() const {
+int64_t Farey_fraction::get_denominator() const {
     return denominator;
 }
-BigInt Farey_fraction::get_num() const {
+int64_t Farey_fraction::get_num() const {
     return num;
 }
 
-BigInt Farey_fraction::get_mod() const {
+int64_t Farey_fraction::get_mod() const {
     return mod;
 }
 
-BigInt Farey_fraction::get_N() const {
+int64_t Farey_fraction::get_N() const {
     return N;
 }
 
 
 long double Farey_fraction::to_long_double() const {
-    try {
-        int64_t denom = denominator.to_long_long();
-        int64_t integral_part = (numerator / denominator).to_long_long();
-        long double res = (numerator % denominator).to_long_long() / long double(denom);
-        return res + integral_part;
-    }
-    catch (std::exception& e) {
-        std::cout << "Failed conversion into long double" << std::endl;
-        std::cout << "Corresponding Farey fraction: " << *this << std::endl;
-        return 0;
-    }
+    return numerator / long double(denominator);
 }
  
 void Farey_fraction::Normalize() {
@@ -184,21 +225,21 @@ void Farey_fraction::Normalize() {
 }
 
 void Farey_fraction::calc() {
-    auto inv = inverse_modulo(denominator, mod);
+    int64_t inv = inverse_modulo(denominator, mod);
     while (inv < 0) {
         inv += mod;
     }
     inv %= mod;
-    num = (numerator * inv) % mod;
+    num = safe_mul(numerator, inv, mod);
 }
 
-BigInt Farey_fraction::inverse_modulo(const BigInt& num,const BigInt& mod) {
-    BigInt M[2][2];
+int64_t Farey_fraction::inverse_modulo(int64_t num, int64_t mod) {
+    int64_t M[2][2];
     M[0][0] = mod;
     M[1][0] = num;
     M[0][1] = 0;
     M[1][1] = 1;
-    BigInt r = 0, q = 0;
+    int64_t r = 0, q = 0;
     while (M[1][0] != 1) {
         r = M[0][0] % M[1][0];
         q = M[0][1] - M[0][0] / M[1][0] * M[1][1];
@@ -207,20 +248,19 @@ BigInt Farey_fraction::inverse_modulo(const BigInt& num,const BigInt& mod) {
         M[1][0] = r;
         M[1][1] = q;
     }
-    auto res = M[1][1];
-    return res;
+    return M[1][1];
     // Normalize()????
 }
 
 void Farey_fraction::reverse_calc() {
-    BigInt M[2][2];
-    M[0][0] = static_cast<BigInt>(mod);
+    int64_t M[2][2];
+    M[0][0] = mod;
     M[0][1] = 0;
     M[1][0] = num;
     M[1][1] = 1;
-    BigInt r = 0, q = 0;
+    int64_t r = 0, q = 0;
 
-    while (abs(M[1][0] > (BigInt)N) || abs(M[1][1] > (BigInt)N)) { // 
+    while (abs(M[1][0] > N) || abs(M[1][1] > N)) { // 
         r = M[0][0] % M[1][0];
         q = M[0][1] - (M[0][0] / M[1][0]) * M[1][1];
         M[0][0] = M[1][0];
@@ -231,34 +271,28 @@ void Farey_fraction::reverse_calc() {
             M[1][0] = mod;
         }
     }
-    numerator = static_cast<BigInt>(M[1][0] * (M[1][1] / abs(M[1][1])));
-    denominator = static_cast<BigInt>(abs(M[1][1]));
+    numerator = (M[1][0] * (M[1][1] / abs(M[1][1])));
+    denominator = (abs(M[1][1])); // static cast?
     if (numerator == 0) {
         denominator = 1;
     }
 }
 
-void Farey_fraction::throw_if_bad_params() {
-    if (checkParams(mod, N) != 1) {
-        std::cout << "Invalid parameters of Farey fractions" << std::endl;
-        throw std::invalid_argument("Invalid parameters of Farey fractions");
-    }
-}
 
-bool is_prime(const BigInt& num) {
-    if (num == 1) return false;
-    if (num == 2) return true;
-    if (num % 2 == 0) return false;
-    BigInt upper = sqrt(num);
-    for (BigInt i = 3; i <= upper; i+=2) {
-        if (num % i == 0) return false;
-    }
-    return true;
-}
-
-int checkParams( BigInt& mod,  BigInt& N) {
-    return N * N * 2ll + 1ll <= mod && mod > 1 && N > 1 /*&& is_prime(mod)*/;
-}
+//bool is_prime(const BigInt& num) {
+//    if (num == 1) return false;
+//    if (num == 2) return true;
+//    if (num % 2 == 0) return false;
+//    BigInt upper = sqrt(num);
+//    for (BigInt i = 3; i <= upper; i+=2) {
+//        if (num % i == 0) return false;
+//    }
+//    return true;
+//}
+//
+//int checkParams( BigInt& mod,  BigInt& N) {
+//    return N * N * 2ll + 1ll <= mod && mod > 1 && N > 1 /*&& is_prime(mod)*/;
+//}
 
 Farey_fraction Farey_fraction::swapped(const Farey_fraction& f) {
     return Farey_fraction(mod, N, f.get_denominator(), f.get_numerator());
