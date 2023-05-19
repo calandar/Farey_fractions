@@ -17,7 +17,7 @@ void read_vector(std::vector<long double>& v, std::istream& is = std::cin) {
 int main() {
 	std::string op;
 	
-	int64_t mod = _MOD, N = _N;
+	int128_t mod = _MOD, N = _N;
 
 	std::cout << "Input type: \n1 - Console  \n2 - File  \n3 - Random generator (using file)   \n >>>: ";
 	std::ifstream ifs("input_test.txt");
@@ -60,8 +60,9 @@ int main() {
 		}
 		long double s1 = scalar(a, b);
 		long double s2 = scalar(a1, b1);
-		os->get() << std::setprecision(15) << "Using Farey fractions: " << s1 << std::endl;
-		os->get() <<std::setprecision(15) << "Using long double: " << s2 << std::endl;
+		os->get() << "Size: " << a.get_dim() << std::endl;
+		os->get() << std::setprecision(25) << "Using Farey fractions: " << s1 << std::endl;
+		os->get() <<std::setprecision(25) << "    Using long double: " << s2 << std::endl;
 	}
 	else {
 		os = ofs;
@@ -99,6 +100,15 @@ int main() {
 		os->get() <</* std::setprecision(prec) << */"Using Farey fractions: " << scalar(a, b) << std::endl;
 		os->get() << /*std::setprecision(prec) <<*/ "Using long double: " << scalar(doubles1, doubles2) << std::endl;
 	}
-
 	return 0;
 }
+
+//int main() {
+//	Farey_fraction a1(_MOD, _N, 5, 2);
+//	Farey_fraction a2(_MOD, _N, 8, 19);
+//	Farey_fraction a12 = a1 + a2;
+//	std::cout << a12 << std::endl;
+//	std::cout << a12.to_long_double() << std::endl;
+//
+//
+//}

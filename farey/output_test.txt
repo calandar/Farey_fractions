@@ -1,0 +1,3 @@
+Size: 90000
+Using Farey fractions: -4731.319467693270780728199
+    Using long double: -4731.319467693380829587113

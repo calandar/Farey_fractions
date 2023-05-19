@@ -5,6 +5,7 @@
 #include "../farey/scalar.h"
 #include "../farey/scalar.cpp"
 
+using namespace std;
 
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
@@ -25,27 +26,30 @@ namespace UnitTests
 
 
 		TEST_METHOD(Constructor_from_double) {
-			Farey_fraction f2(_MOD, _N, "1.4");
+			Farey_fraction f2(_MOD, _N, "1.4"s);
 			Assert::IsTrue(f2.get_numerator() == 14 && f2.get_denominator() == 10, L"1");
-			Farey_fraction f3(_MOD, _N, "123.0");
+			Farey_fraction f3(_MOD, _N, "123.0"s);
 			Assert::IsTrue(f3.get_numerator() == 123 && f3.get_denominator() == 1, L"2");
-			Farey_fraction f5(_MOD, _N, "-2.0");
+			Farey_fraction f5(_MOD, _N, "-2.0"s);
 			Assert::IsTrue(f5.get_numerator() == -2 && f5.get_denominator() == 1, L"3");
-			Farey_fraction f7(_MOD, _N, "0");
+			Farey_fraction f7(_MOD, _N, "0"s);
 			Assert::IsTrue(f7.get_numerator() == 0 && f7.get_denominator() == 1, L"4");
-			Farey_fraction f8(_MOD, _N, "-5");
+			Farey_fraction f8(_MOD, _N, "-5"s);
 			Assert::IsTrue(f8.get_numerator() == -5 && f8.get_denominator() == 1, L"5");
-			Farey_fraction f11(_MOD, _N, "-0.35");
+			Farey_fraction f11(_MOD, _N, "-0.35"s);
 			Assert::IsTrue(f11.get_numerator() == -35 && f11.get_denominator() == 100, L"6");
-			Farey_fraction f12(_MOD, _N, "-0.0041");
+			Farey_fraction f12(_MOD, _N, "-0.0041"s);
 			Assert::IsTrue(f12.get_numerator() == -41 && f12.get_denominator() == 10000, L"7");
-			Farey_fraction f13(_MOD, _N, "-4.01");
+			Farey_fraction f13(_MOD, _N, "-4.01"s);
 			Assert::IsTrue(f13.get_numerator() == -401 && f13.get_denominator() == 100, L"8");
-			Farey_fraction ff2(_MOD, _N, "-0.0001");
+			Farey_fraction ff2(_MOD, _N, "-0.0001"s);
 			Assert::IsTrue(ff2.get_numerator() == -1 && ff2.get_denominator() == 10000, L"9");
-			Farey_fraction f15(_MOD, _N, "990.000");
+			Farey_fraction f15(_MOD, _N, "990.000"s);
 			Assert::IsTrue(f15.get_numerator() == 990 && f15.get_denominator() == 1, L"10");
+			Farey_fraction f16(_MOD, _N, "-0.1959200000"s);
+			Assert::IsTrue(f15.get_numerator() == 19592 && f15.get_denominator() == 100000, L"11");
 		}
+
 	};
 
 	TEST_CLASS(Farey_core_operations)

@@ -2,11 +2,11 @@
 #include <string>
 #include <exception>
 
-	vec::vec(int64_t m, int64_t n){
+	vec::vec(int128_t m, int128_t n){
 		mod = m;
 		N = n;
 	}
-	vec::vec(const std::vector<int64_t>& big_v, int64_t m, int64_t n) {
+	vec::vec(const std::vector<int128_t>& big_v, int128_t m, int128_t n) {
 		mod = m; //.
 		N = n; //.
 		dim = big_v.size();
@@ -26,7 +26,7 @@
 		v = big_v;
 	}
 
-	vec::vec(const std::vector<std::string>& double_v, int64_t m, int64_t n) {
+	vec::vec(const std::vector<std::string>& double_v, int128_t m, int128_t n) {
 		mod = m; // .
 		N = n; // .
 		dim = double_v.size();
@@ -83,10 +83,10 @@
 		os << '>' << std::endl;
 	}
 
-	int64_t vec::get_mod() const {
+	int128_t vec::get_mod() const {
 		return mod;
 	}
-	int64_t vec::get_N() const {
+	int128_t vec::get_N() const {
 		return N;
 	}
 

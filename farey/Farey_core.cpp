@@ -2,39 +2,45 @@
 #include <exception>
 #include <string>
 
-bool no_overflow(int64_t a, int64_t b) {  
-    int64_t sum = a + b;
-    int64_t ssd = a ^ b;
+bool no_overflow(int128_t  a, int128_t  b) {
+    int128_t  sum = a + b;
+    int128_t  ssd = a ^ b;
     if ((ssd >= 0) && ((ssd ^ sum) < 0))
         return false; 
     return true;
 }
 
-int64_t safe_mul(int64_t x, int64_t y, int64_t m) { 
+int128_t  safe_mul(int128_t  x, int128_t  y, int128_t  m) {
     bool minus = x > 0 && y < 0 || x < 0 && y > 0;
     x = abs(x);
     y = abs(y);
     if (x > y) {
-        int64_t tmp = x;
+        int128_t  tmp = x;
         x = y;
         y = tmp;
     }
-    int64_t res = 0;
-    int64_t iy = y;
+    int128_t  res = 0;
+    int128_t  iy = y;
     while (x) {
         if (x & 1) {
             if (!no_overflow(res, iy)) res -= m;
             res = (res + iy) % m;
         }
-        int64_t new_iy = iy;
+        int128_t  new_iy = iy;
         if (!no_overflow(new_iy, iy)) new_iy -= m;
         iy = (new_iy + iy) % m;
-        x >>= 1;
+        //x >>= 1;
+        x /= 2;
     }
     if (minus) res *= -1;
     return  res;
 }
 
+//int128_t abs(int128_t val) {
+//    int128_t* res = &val;
+//    if (val.cmp(0) == 1) return res->ap::library::integer_handle<256>::set_sign(0);
+//    return val;
+//}
 
 void strip_leading_zeroes(std::string& num) {
     size_t i;
@@ -50,7 +56,7 @@ void strip_leading_zeroes(std::string& num) {
 
 bool valid_num(const std::string& s)  // минус прилегает плотно, в самом начале, не более чем одна точка
 { 
-    if (s.size() > 10) return false;
+    //if (s.size() > 10) return false;
     bool found_dot = false;
     std::string::const_iterator it = s.begin();
     while (it != s.end()) {
@@ -71,7 +77,7 @@ bool valid_num(const std::string& s)  // минус прилегает плотно, в самом начале,
 Farey_fraction::Farey_fraction(){
     calc();
 }
-Farey_fraction::Farey_fraction(int64_t m, int64_t n, int64_t number) {
+Farey_fraction::Farey_fraction(int128_t m, int128_t n, int128_t number) {
     mod = m;
     N = n;
     //throw_if_bad_params();  // ??
@@ -79,7 +85,7 @@ Farey_fraction::Farey_fraction(int64_t m, int64_t n, int64_t number) {
     Normalize();
     reverse_calc();
 }
-Farey_fraction::Farey_fraction(int64_t m, int64_t n, int64_t num, int64_t denom) {
+Farey_fraction::Farey_fraction(int128_t m, int128_t n, int128_t num, int128_t denom) {
     mod = m;
     N = n;
     //throw_if_bad_params(); // ?
@@ -90,15 +96,16 @@ Farey_fraction::Farey_fraction(int64_t m, int64_t n, int64_t num, int64_t denom)
     
 }
 
-Farey_fraction::Farey_fraction(int64_t m, int64_t n, std::string number) {
+Farey_fraction::Farey_fraction(int128_t m, int128_t n, std::string number) {
     if (!valid_num(number)) throw std::invalid_argument("Wrong floating point number representation"); // exception !
     // ПРОВЕРИТЬ: количество знаков после запятой не более 4, количество значащих цифр не больше 3
+    // upd:  количество знаков после запятой не более 9, количество значащих цифр не больше 8
     mod = m;
     N = n;
     auto it = std::find(number.begin(), number.end(), '.'); // есть ли точка
     size_t dot_pos = std::distance(number.begin(), it);
     if (it == number.end()) {
-        numerator = std::stoll(number);
+        numerator = int128_t(number.data());
         denominator = 1;
     }
     else {
@@ -114,7 +121,7 @@ Farey_fraction::Farey_fraction(int64_t m, int64_t n, std::string number) {
         for (size_t i = dot_pos + 1; i <= j; i++) {
             count++;
         }
-        if (count > 4) throw std::invalid_argument("Too much precision");
+        if (count > 9) throw std::invalid_argument("Too much precision");
         bool minus = false;
         if (number[0] == '-') minus = true;
         int cnt1 = 0;                           // значащих цифр до точки
@@ -129,7 +136,7 @@ Farey_fraction::Farey_fraction(int64_t m, int64_t n, std::string number) {
             if (cnt1 == 0 && number[i] == '0') continue;  // пропускаем только если до точки не было значащих цифр
             cnt2++;
         }
-        if (cnt1 + cnt2 > 3) throw std::invalid_argument("Too much significant digits");
+        if (cnt1 + cnt2 > 7) throw std::invalid_argument("Too much significant digits");
         number = number.replace(j + 1 + int((j < dot_pos)), number.size() - j - 1 - int((j < dot_pos)), ""); // УДАЛИЛИ НЕЗНАЧАЩИЕ НУЛИ В КОНЦЕ
         //int denum_pow = number.size() - j;                                            // после запятой только нули, точку надо учесть и не удалять ее
         it = std::find(number.begin(), number.end(), '.');
@@ -144,9 +151,9 @@ Farey_fraction::Farey_fraction(int64_t m, int64_t n, std::string number) {
         }
         number = number.substr(first_not_null_pos, number.size() - first_not_null_pos);
         if (number == "") number = "0";
-        numerator = stoll(number);
+        numerator = int128_t(number.data());
         if (minus) numerator *= -1;
-        denominator = stoll("1" + std::string(denom_pow, '0'));
+        denominator = int128_t(("1" + std::string(denom_pow, '0')).data());
         calc();
     }
 }
@@ -204,27 +211,27 @@ Farey_fraction& Farey_fraction::operator /= (const Farey_fraction& rhs) {
 }
 
 
-int64_t Farey_fraction::get_numerator() const {
+int128_t Farey_fraction::get_numerator() const {
     return numerator;
 }
-int64_t Farey_fraction::get_denominator() const {
+int128_t Farey_fraction::get_denominator() const {
     return denominator;
 }
-int64_t Farey_fraction::get_num() const {
+int128_t Farey_fraction::get_num() const {
     return num;
 }
 
-int64_t Farey_fraction::get_mod() const {
+int128_t Farey_fraction::get_mod() const {
     return mod;
 }
 
-int64_t Farey_fraction::get_N() const {
+int128_t Farey_fraction::get_N() const {
     return N;
 }
 
 
 long double Farey_fraction::to_long_double() const {
-    return numerator / long double(denominator);
+    return long double(numerator) / long double(denominator);
 }
  
 void Farey_fraction::Normalize() {
@@ -235,7 +242,7 @@ void Farey_fraction::Normalize() {
 }
 
 void Farey_fraction::calc() {
-    int64_t inv = inverse_modulo(denominator, mod);
+    int128_t inv = inverse_modulo(denominator, mod);
     while (inv < 0) {
         inv += mod;
     }
@@ -244,13 +251,13 @@ void Farey_fraction::calc() {
     Normalize();
 }
 
-int64_t Farey_fraction::inverse_modulo(int64_t num, int64_t mod) {
-    int64_t M[2][2];
+int128_t Farey_fraction::inverse_modulo(int128_t num, int128_t mod) {
+    int128_t M[2][2];
     M[0][0] = mod;
     M[1][0] = num;
     M[0][1] = 0;
     M[1][1] = 1;
-    int64_t r = 0, q = 0;
+    int128_t r = 0, q = 0;
     while (M[1][0] != 1) {
         r = M[0][0] % M[1][0];
         q = M[0][1] - M[0][0] / M[1][0] * M[1][1];
@@ -264,12 +271,12 @@ int64_t Farey_fraction::inverse_modulo(int64_t num, int64_t mod) {
 }
 
 void Farey_fraction::reverse_calc() {
-    int64_t M[2][2];
+    int128_t M[2][2];
     M[0][0] = mod;
     M[0][1] = 0;
     M[1][0] = num;
     M[1][1] = 1;
-    int64_t r = 0, q = 0;
+    int128_t r = 0, q = 0;
 
     while (abs(M[1][0] > N) || abs(M[1][1] > N)) { // 
         r = M[0][0] % M[1][0];
