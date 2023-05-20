@@ -64,7 +64,7 @@ int main() {
 		os->get() << std::setprecision(25) << "Using Farey fractions: " << s1 << std::endl;
 		os->get() <<std::setprecision(25) << "    Using long double: " << s2 << std::endl;
 	}
-	else {
+	else if (op == "3"){
 		os = ofs;
 		is = ifs;
 		long double low = -1;
@@ -99,6 +99,57 @@ int main() {
 		vec b(fracs2, mod,N);
 		os->get() <</* std::setprecision(prec) << */"Using Farey fractions: " << scalar(a, b) << std::endl;
 		os->get() << /*std::setprecision(prec) <<*/ "Using long double: " << scalar(doubles1, doubles2) << std::endl;
+	}
+	else {
+		os = ofs;
+		is = ifs;
+		/*for (int i = -5; i <= 10; i++) { 
+			for (int j = -5; j <= 10; j++) {*/
+		for (int i : {-17, -10, -5, 0, 4, 10, 11, 12, 13, 15, 23}) {
+			for (int j : {-32, -19, -5, 1, 5, 10, 11, 12, 13, 15, 28}) {
+				vec f1(mod, N);
+				vec f2(mod, N);
+				std::vector<long double> l1;
+				std::vector<long double> l2;
+				f1.add(pow_10(i));
+				l1.push_back(stold(pow_10(i)));
+				f1.add("1223");
+				l1.push_back(1223);
+				f1.add(pow_10(i - 1));
+				l1.push_back(stold(pow_10(i - 1)));
+				f1.add(pow_10(i - 2));
+				l1.push_back(stold(pow_10(i - 2)));
+				f1.add("3");
+				l1.push_back(3);
+				f1.add("-" + pow_10(i - 5));
+				l1.push_back(stold("-" + pow_10(i - 5)));
+
+				f2.add(pow_10(j));
+				l2.push_back(stold(pow_10(j)));
+				f2.add("2");
+				l2.push_back(2);
+				f2.add("-" + pow_10(j + 1));
+				l2.push_back(stold("-" + pow_10(j + 1)));
+				f2.add(pow_10(j));
+				l2.push_back(stold(pow_10(j)));
+				f2.add("2111");
+				l2.push_back(2111);
+				f2.add(pow_10(j + 3));
+				l2.push_back(stold(pow_10(j + 3)));
+
+				std::cout << "Alpha = " << i << ", Beta = " << j << std::endl;
+				long double s1 = scalar(f1, f2);
+				long double s2 = scalar(l1, l2);
+				std::cout << "-------------------------------------" << std::endl;
+				os->get() << "Alpha = " << i << ", Beta = " << j << std::endl;
+				os->get() << std::setprecision(15) << "Using Farey fractions: " << s1 << std::endl;
+				os->get() << std::setprecision(15) << "    Using long double: " << s2 << std::endl;
+				os->get() << "--------------------------" << std::endl;
+			}
+		}
+		
+
+
 	}
 	return 0;
 }

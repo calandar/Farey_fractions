@@ -63,4 +63,5 @@ bool valid_num(const std::string& s);	// Проверка, является ли строка подходящей
 bool no_overflow(int128_t, int128_t);
 int128_t  safe_mul(int128_t, int128_t, int128_t);
 void strip_leading_zeroes(std::string&);
+std::string pow_10(int sze);
 //int128_t abs(int128_t);

@@ -106,8 +106,10 @@
 		Farey_fraction res = Farey_fraction(a.get_mod(), a.get_N(), 0, 1);
 		for (size_t i = 0; i < a.get_dim(); i++) {
 			Farey_fraction curr = a[i] * b[i];
+			//std::cout << curr << ' ';
 			res += curr;
 		}
+		//std::cout << std::endl;
 		//std::cout << res << std::endl; // !!
 		return res.to_long_double();
 	}
@@ -115,7 +117,10 @@
 	long double scalar(const std::vector<long double>& v1, const std::vector<long double>& v2) {
 		long double res = 0.0;
 		for (size_t i = 0; i < v1.size(); i++) {
-			res += v1[i] * v2[i];
+			long double curr = v1[i] * v2[i];
+			res += curr;
+			std::cout << curr << ' ';
 		}
+		std::cout << std::endl;
 		return res;
 	}

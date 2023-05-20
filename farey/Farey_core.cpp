@@ -54,6 +54,11 @@ void strip_leading_zeroes(std::string& num) {
         num = num.substr(i);
 }
 
+std::string pow_10(int sze) {
+    if (sze < 0) return "0." + std::string(abs(sze)-1, '0') + "1";
+    return "1" + std::string(sze, '0');
+}
+
 bool valid_num(const std::string& s)  // минус прилегает плотно, в самом начале, не более чем одна точка
 { 
     //if (s.size() > 10) return false;
@@ -107,6 +112,7 @@ Farey_fraction::Farey_fraction(int128_t m, int128_t n, std::string number) {
     if (it == number.end()) {
         numerator = int128_t(number.data());
         denominator = 1;
+        calc();
     }
     else {
         // точка есть
@@ -121,7 +127,7 @@ Farey_fraction::Farey_fraction(int128_t m, int128_t n, std::string number) {
         for (size_t i = dot_pos + 1; i <= j; i++) {
             count++;
         }
-        if (count > 9) throw std::invalid_argument("Too much precision");
+        if (count > 100) throw std::invalid_argument("Too much precision"); //!!!!!!!!
         bool minus = false;
         if (number[0] == '-') minus = true;
         int cnt1 = 0;                           // значащих цифр до точки
@@ -136,7 +142,7 @@ Farey_fraction::Farey_fraction(int128_t m, int128_t n, std::string number) {
             if (cnt1 == 0 && number[i] == '0') continue;  // пропускаем только если до точки не было значащих цифр
             cnt2++;
         }
-        if (cnt1 + cnt2 > 7) throw std::invalid_argument("Too much significant digits");
+        if (cnt1 + cnt2 > 100) throw std::invalid_argument("Too much significant digits");  //!!!!!!
         number = number.replace(j + 1 + int((j < dot_pos)), number.size() - j - 1 - int((j < dot_pos)), ""); // УДАЛИЛИ НЕЗНАЧАЩИЕ НУЛИ В КОНЦЕ
         //int denum_pow = number.size() - j;                                            // после запятой только нули, точку надо учесть и не удалять ее
         it = std::find(number.begin(), number.end(), '.');
@@ -277,7 +283,7 @@ void Farey_fraction::reverse_calc() {
     M[1][0] = num;
     M[1][1] = 1;
     int128_t r = 0, q = 0;
-
+    int64_t count = 0;
     while (abs(M[1][0] > N) || abs(M[1][1] > N)) { // 
         r = M[0][0] % M[1][0];
         q = M[0][1] - (M[0][0] / M[1][0]) * M[1][1];
@@ -287,6 +293,11 @@ void Farey_fraction::reverse_calc() {
         M[1][1] = q;
         if (M[1][0] == 0 && abs(M[1][1]) > N) {
             M[1][0] = mod;
+        }
+        count++;
+        if (count > 10000) {
+            std::cout << "Reverse_calc loop error. Parameters: num = " << num << ", mod = " << mod << std::endl;
+            return;
         }
     }
     numerator = (M[1][0] * (M[1][1] / abs(M[1][1])));
@@ -318,7 +329,7 @@ Farey_fraction Farey_fraction::swapped(const Farey_fraction& f) {
 
 
 std::ostream& operator << (std::ostream& os, const Farey_fraction& f) {
-    os << f.get_numerator() << '/' << f.get_denominator() << std::endl;
+    os << f.get_numerator() << '/' << f.get_denominator();
     return os;
 }
 
