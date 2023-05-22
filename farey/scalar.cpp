@@ -23,7 +23,7 @@
 		mod = big_v[0].get_mod(); //.
 		N = big_v[0].get_N(); //.
 		dim = big_v.size();
-		v = big_v;
+		*this = big_v;
 	}
 
 	vec::vec(const std::vector<std::string>& double_v, int128_t m, int128_t n) {
@@ -38,15 +38,12 @@
 
 	Farey_fraction& vec::operator [](size_t i){
 		if (i >= 0 && i < dim) {
-			return  v[i];
+			return v[i];
 		}
 		std::cout << "Index out of range!!" << std::endl;
 		exit(228);
 	}
 
-	/*Farey_fraction& vec::operator= (std::string) {
-
-	}*/
 
 	int64_t vec::get_dim() const {
 		return dim;
@@ -93,14 +90,17 @@
 	long double scalar( vec& a,  vec& b) {   
 		if (a.get_dim() != b.get_dim()) {
 			std::cout << "Dimentions differ" << std::endl;
+			throw std::runtime_error("Dimentions differ");
 			return 0;
 		}
 		if (a.get_dim() == 0) {
 			std::cout << "Vector has 0 length" << std::endl;
+			throw std::runtime_error("Zero length");
 			return 0;
 		}
 		if (a.get_mod() != b.get_mod()) {
 			std::cout << "N-order of vectors differ" << std::endl;
+			throw std::runtime_error("Farey parameters differ");
 			return 0;
 		}
 		Farey_fraction res = Farey_fraction(a.get_mod(), a.get_N(), 0, 1);
@@ -124,3 +124,5 @@
 		std::cout << std::endl;
 		return res;
 	}
+
+	

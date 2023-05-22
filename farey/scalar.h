@@ -2,7 +2,7 @@
 #include "Farey_core.h"
 #include <vector>
 
-class vec {
+class vec/* : public std::vector<Farey_fraction>*/{
 public:
 	vec(int128_t m = _MOD, int128_t n = _N);
 	vec(const std::vector<int128_t>&, int128_t m = _MOD, int128_t n = _N);
@@ -26,3 +26,4 @@ private:
 
 long double scalar(vec&, vec&);
 long double scalar(const std::vector<long double>&, const std::vector<long double>&);
+

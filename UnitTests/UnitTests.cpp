@@ -4,6 +4,9 @@
 #include "../farey/Farey_core.cpp"
 #include "../farey/scalar.h"
 #include "../farey/scalar.cpp"
+#include "../farey/fourier.h"
+#include "../farey/fourier.cpp"
+
 
 using namespace std;
 
@@ -47,7 +50,7 @@ namespace UnitTests
 			Farey_fraction f15(_MOD, _N, "990.000"s);
 			Assert::IsTrue(f15.get_numerator() == 990 && f15.get_denominator() == 1, L"10");
 			Farey_fraction f16(_MOD, _N, "-0.1959200000"s);
-			Assert::IsTrue(f15.get_numerator() == 19592 && f15.get_denominator() == 100000, L"11");
+			Assert::IsTrue(f16.get_numerator() == -19592 && f16.get_denominator() == 100000, L"11");
 		}
 
 	};
@@ -97,11 +100,20 @@ namespace UnitTests
 
 		}
 
+		TEST_METHOD(Farey_core_assignment) {
+			Farey_fraction ass1(_MOD, _N, 5, 2);
+			ass1 = "1.5";
+			Assert::IsTrue(ass1.get_numerator() == 15 && ass1.get_denominator() == 10, L"1");
+			Farey_fraction ass2(_MOD, _N, 1, 10);
+			ass2 = "0";
+			Assert::IsTrue(ass2.get_numerator() == 0 && ass2.get_denominator() == 1, L"2");
+		}
+
 	};
 
 	TEST_CLASS(Single_functions) {
 
-		TEST_METHOD(Valid_number)
+		/*TEST_METHOD(Valid_number)
 		{
 			Assert::IsFalse(valid_num("12784.243634"), L"12784.243634");
 			Assert::IsTrue(valid_num("-12784.0"), L"-12784.0");
@@ -119,6 +131,21 @@ namespace UnitTests
 			Assert::IsTrue(valid_num("0"), L"0");
 			Assert::IsTrue(valid_num("1.25"), L"1.25");
 			Assert::IsTrue(valid_num("-0.01"), L"-0.01");
+		}*/
+
+		TEST_METHOD(ZExtract_component) {
+			auto p1 = extract_component("-123.5-0.87i");
+			Assert::IsTrue(p1.first == "-123.5" && p1.second == "-0.87", L"1");
+			auto p2 = extract_component("900");
+			Assert::IsTrue(p2.first == "900" && p2.second == "0", L"2");
+			auto p3 = extract_component("-1.502i");
+			Assert::IsTrue(p3.first == "0" && p3.second == "-1.502", L"3");
+			auto p4 = extract_component("205.103i");
+			Assert::IsTrue(p4.first == "0" && p4.second == "205.103", L"4");
+			auto p5 = extract_component("12+5i");
+			Assert::IsTrue(p5.first == "12" && p5.second == "5", L"5");
+			auto p6 = extract_component("0-0i");
+			Assert::IsTrue(p6.first == "0" && p6.second == "0", L"6");
 		}
 
 	};

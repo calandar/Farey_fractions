@@ -20,14 +20,15 @@ public:
 	Farey_fraction();
 	Farey_fraction(int128_t, int128_t, int128_t);
 	Farey_fraction(int128_t, int128_t, int128_t, int128_t);
-	Farey_fraction(int128_t, int128_t, std::string);	// REWORKING
+	Farey_fraction(int128_t, int128_t, std::string);	
 	// ========= Перегруженные арифметические операторы ========= //
-	Farey_fraction operator +   (const Farey_fraction&); // REWORKING -- done?
+	Farey_fraction operator +   (const Farey_fraction&);
 	Farey_fraction operator -   (const Farey_fraction&);
 	Farey_fraction operator *   (const Farey_fraction&);
 //	const Farey_fraction operator *   (const Farey_fraction&) const;
 	Farey_fraction operator /   (const Farey_fraction&);
-	Farey_fraction& operator =  (const Farey_fraction&);
+	Farey_fraction operator =  (const Farey_fraction&);
+	Farey_fraction operator =  (const std::string&);
 	Farey_fraction& operator += (const Farey_fraction&);
 	Farey_fraction& operator -= (const Farey_fraction&);
 	Farey_fraction& operator *= (const Farey_fraction&);
@@ -57,8 +58,7 @@ private:
 	
 };
 
-//bool is_prime(const BigInt& num);
-//int checkParams( BigInt& mod,  BigInt& N);  // Проверить, выполняется ли основное условие дробей Фарея
+
 bool valid_num(const std::string& s);	// Проверка, является ли строка подходящей в качестве вещественного значения
 bool no_overflow(int128_t, int128_t);
 int128_t  safe_mul(int128_t, int128_t, int128_t);

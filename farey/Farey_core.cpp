@@ -185,7 +185,7 @@ Farey_fraction Farey_fraction::operator / (const Farey_fraction& rhs) {
     return res;
 }
 
-Farey_fraction& Farey_fraction::operator = (const Farey_fraction& rhs) {
+Farey_fraction Farey_fraction::operator = (const Farey_fraction& rhs) {
     mod = rhs.get_mod();
     N = rhs.get_N();
     numerator = rhs.get_numerator();
@@ -194,6 +194,13 @@ Farey_fraction& Farey_fraction::operator = (const Farey_fraction& rhs) {
     return *this;
 }
 
+Farey_fraction Farey_fraction::operator = (const std::string& rhs) {
+    Farey_fraction res(mod, N, rhs);
+    numerator = res.get_numerator();
+    denominator = res.get_denominator();
+    num = res.get_num();
+    return *this;
+}
 
 Farey_fraction& Farey_fraction::operator += (const Farey_fraction& rhs) {
     *this = *this + rhs;
