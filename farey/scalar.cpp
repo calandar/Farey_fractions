@@ -49,7 +49,7 @@
 		return dim;
 	}
 
-	void vec::add(const std::string& num, std::istream& is) {
+	void vec::add(const std::string& num) {
 		//if (valid_num(num)) {
 			v.push_back(Farey_fraction(mod, N, num));
 			dim++;
@@ -68,7 +68,7 @@
 		std::string curr;
 		for (size_t i = 0; i < d; i++) {
 			is >> curr;
-			add(curr, is);
+			add(curr);
 		}
 	}
 

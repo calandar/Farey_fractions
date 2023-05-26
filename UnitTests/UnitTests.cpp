@@ -53,8 +53,20 @@ namespace UnitTests
 			Assert::IsTrue(f16.get_numerator() == -19592 && f16.get_denominator() == 100000, L"11");
 		}
 
+		TEST_METHOD(Farey_core_big_nums) {
+			Farey_fraction bg1(_MOD, _N, "4178898285647891289018422312"s);
+			int128_t ans1 = int128_t("4178898285647891289018422312");
+			Assert::IsTrue(bg1.get_numerator() == ans1 && bg1.get_denominator() == 1, L"1");
+
+
+
+		}
+
+
 	};
 
+
+	
 	TEST_CLASS(Farey_core_operations)
 	{
 	public:

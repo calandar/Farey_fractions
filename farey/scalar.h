@@ -10,7 +10,7 @@ public:
 	vec(const std::vector<std::string>&, int128_t m = _MOD, int128_t n = _N);
 	Farey_fraction& operator [] (size_t);
 	//Farey_fraction& operator = (std::string);
-	void add(const std::string&, std::istream & = std::cin);
+	void add(const std::string&);
 	void read_vec(std::istream& = std::cin);
 	void print_vec(std::ostream& = std::cout);
 	//const Farey_fraction& operator [](size_t i) const;

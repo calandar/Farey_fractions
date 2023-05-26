@@ -1,0 +1,10 @@
+Using long double: 
+Direct transform:
+(2.1,0) (0.45,0.894893) (0.45,-0.894893) 
+Inverse transform:
+(3,-7.77156e-16) (0.1,2.22045e-16) (3.2,5.55112e-16) 
+Using Farey fractions: 
+Direct transform:
+(2.1,0) (0.45,0.894893) (0.45,-0.894893) 
+Inverse transform:
+(3,-8.63333e-16) (-0.440875,0.0729099) (-0.634682,-3.0048) 

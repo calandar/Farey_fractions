@@ -1,5 +1,7 @@
 #include "fourier.h"
 #include <exception>
+#include <sstream>
+#include <iomanip>
 
 component::component(int128_t m, int128_t n) {
 	re = Farey_fraction(m, n, 0, 1);
@@ -12,6 +14,12 @@ component::component(const std::string& s, int128_t m, int128_t n) {
 	im = Farey_fraction(m,n,res.second);
 }
 
+component::component(const std::string& s1, const std::string& s2, int128_t m, int128_t n) {
+	re = Farey_fraction(m, n, s1);
+	im = Farey_fraction(m, n, s2);
+}
+
+
 component component::operator+(const component& rhs) {
 	component res;
 	res.re = this->re + rhs.re;
@@ -19,7 +27,12 @@ component component::operator+(const component& rhs) {
 	return res;
 }
 
-
+component component::operator / (size_t N) {
+	component res;
+	res.re = this->re / Farey_fraction(_MOD,_N, N, 1);
+	res.im = this->im / Farey_fraction(_MOD, _N, N, 1);
+	return res;
+}
 
 component component::operator*(const component& rhs) {
 	component res;
@@ -30,15 +43,7 @@ component component::operator*(const component& rhs) {
 
 std::ostream& operator << (std::ostream& os, const component& c) {
 	bool printed = false;
-	if (c.re.get_numerator() != 0) {
-		os << c.re.to_long_double();
-		printed = true;
-	}
-	if (c.im.get_numerator() != 0) {
-		os << c.im.to_long_double() << 'i';
-		printed = true;
-	}
-	if (!printed) os << 0;
+	os << '(' << c.re.to_long_double() << ',' << c.im.to_long_double() << ')';
 	return os;
 }
 
@@ -58,9 +63,24 @@ samples::samples(const std::vector<std::string>& cont, int128_t m, int128_t n) {
 	}
 }
 
-void samples::add(const std::string& s, std::istream& is) {
+void samples::add(const component& c) {
+	v.push_back(c);
+	dim++;
+}
+
+void samples::add(const std::string& s) {
 	v.push_back(component(s));
 	dim++;
+}
+
+void samples::print(std::ostream& os) const {
+	for (size_t i = 0; i < dim; i++) {
+		os << v[i] << ' ';
+	}
+}
+
+int64_t samples::get_dim() const {
+	return dim;
 }
 
 std::pair<std::string, std::string> extract_component(const std::string& number) { // выделить действительную и мнимую часть из ввода
@@ -75,8 +95,9 @@ std::pair<std::string, std::string> extract_component(const std::string& number)
 		if (number[j] == '+' || number[j] == '-') break;
 		j--;
 	}
-	sign = j;
+	sign = j;	
 	if (!(j == -1 || j == 0) || !imagine) { // есть действительная часть
+		if (j == 0) sign = number.size() - 1;
 		std::string re_part = number.substr(0, sign);
 		if (re_part == "-0") re_part = "0";
 		if (!valid_num(re_part)) throw std::invalid_argument("Real part error");
@@ -95,7 +116,7 @@ std::pair<std::string, std::string> extract_component(const std::string& number)
 	return res;
 }
 
-std::vector<cplx> direct_conversion_classic(const std::vector<long double> values) {
+std::vector<cplx> direct_conversion_classic(const std::vector<long double>& values) {
 	std::vector<cplx> res;
 	size_t N = values.size();
 	for (size_t i = 0; i < N; i++) {
@@ -110,7 +131,7 @@ std::vector<cplx> direct_conversion_classic(const std::vector<long double> value
 }
 
 
-std::vector<cplx> inverse_conversion_classic(const std::vector<cplx> values) {
+std::vector<cplx> inverse_conversion_classic(const std::vector<cplx>& values) {
 	std::vector<cplx> res;
 	size_t N = values.size();
 	for (size_t i = 0; i < N; i++) {
@@ -124,16 +145,99 @@ std::vector<cplx> inverse_conversion_classic(const std::vector<cplx> values) {
 	return res;
 }
 
-samples direct_conversion_alt(const std::vector<long double> values) {
+samples direct_conversion_alt(const std::vector<std::string>& values) {
 	samples res;
 	size_t N = values.size();
 	for (size_t i = 0; i < N; i++) {
 		component curr;
+		std::stringstream ss1;
+		std::stringstream ss2;
 		for (size_t j = 0; j < N; j++) {
-			component tmp(cos(twoPi * i * j / N), -sin(twoPi * i * j / N)); // как-то установить точность!!
-			curr = curr + values[j] / N * tmp;
+			long double cs = cos(twoPi * i * j / N);
+			if (abs(cs) < 1e-10) cs = 0.0;
+			ss1 << std::setprecision(10) << cs;
+			long double sn = -sin(twoPi * i * j / N);
+			if (abs(sn) < 1e-10) sn = 0.0;
+			ss2 << std::setprecision(10) << sn;
+			component tmp(ss1.str(), ss2.str());
+			component val(values[j]);
+			curr = curr + val * tmp / N;
+			ss1.str(std::string()); //clear stringstream
+			ss2.str(std::string()); //clear stringstream
 		}
-		res.push_back(curr);
+		res.add(curr);
 	}
+	return res;
+}
+
+samples inverse_conversion_alt(samples values) {
+	samples res;
+	size_t N = values.get_dim();
+	for (size_t i = 0; i < N; i++) {
+		component curr;
+		std::stringstream ss1;
+		std::stringstream ss2;
+		for (size_t j = 0; j < N; j++) {
+			long double cs = cos(twoPi * i * j / N);
+			if (abs(cs) < 1e-10) cs = 0.0;
+			ss1 << std::setprecision(10) << cs;
+			long double sn = sin(twoPi * i * j / N);
+			if (abs(sn) < 1e-10) sn = 0.0;
+			ss2 << std::setprecision(10) << sn;
+			component tmp(ss1.str(), ss2.str());
+			component val(values[j]);
+			curr = curr + val * tmp;
+			ss1.str(std::string()); //clear stringstream
+			ss2.str(std::string()); //clear stringstream
+		}
+		res.add(curr);
+	}
+	return res;
+}
+
+
+Farey_fraction sinP(int num_coef, int denom_coef, int prec) {
+	
+	num_coef %= denom_coef;
+//	long double rads = twoPi / 2 * (num_coef / long double(denom_coef));
+	//std::stringstream ss;
+//	ss << std::setprecision(20) << rads;
+    Farey_fraction twoPi_f = Farey_fraction(_MOD, _N, tP);
+	Farey_fraction x = twoPi_f / 2ll * num_coef / denom_coef;
+	//Farey_fraction x(_MOD, _N, ss.str());
+	Farey_fraction res = x;
+	Farey_fraction Minus(_MOD, _N,-1,1);
+	for (int index = 3; index < prec; index += 2) {
+		res = res + Minus * pow(x, index) / fact(index);
+		Minus *= Farey_fraction(_MOD, _N, -1, 1);
+	}
+	return res;
+}
+
+Farey_fraction pow(const Farey_fraction& b, int power) {
+	Farey_fraction res(_MOD, _N, 1, 1);
+
+	while (power > 0) {
+		res *= b;
+		power--;
+	}
+	std::cout << " pow = " << res;
+	return res;
+}
+
+
+Farey_fraction fact(int a) {
+	Farey_fraction res(_MOD, _N, 1, 1);
+
+	if (a == 1) {
+		return Farey_fraction(_MOD, _N, 1, 1);;
+	}
+	else {
+
+		res = Farey_fraction(_MOD, _N, a, 1) * fact(a - 1);
+
+	}
+	std::cout << " fact = " << res;
+	std::cout << std::endl;
 	return res;
 }

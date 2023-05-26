@@ -51,7 +51,7 @@ int main() {
 			for (size_t i = 0; i < d; i++) {
 				is->get() >> curr;
 				std::stringstream ss(curr);
-				a.add(curr, *is);
+				a.add(curr);
 				ss >> ld;
 				a1.push_back(ld);
 			}
@@ -63,7 +63,7 @@ int main() {
 			for (size_t i = 0; i < d; i++) {
 				is->get() >> curr;
 				std::stringstream ss(curr);
-				b.add(curr, *is);
+				b.add(curr);
 				ss >> ld;
 				b1.push_back(ld);
 			}
@@ -129,13 +129,19 @@ int main() {
 		is = ifs;//!!!!
 
 		std::vector<long double> vals;
+		std::vector<std::string> samp;
 		size_t n = 0;
 		is->get() >> n;
-		long double curr;
+		std::string curr;
+		long double ld;
 		for (size_t i = 0; i < n; i++) {
 			is->get() >> curr;
-			vals.push_back(curr);
+			std::stringstream ss(curr);
+			samp.push_back(curr);
+			ss >> ld;
+			vals.push_back(ld);
 		}
+		os->get() << "Using long double: " << std::endl;
 		auto ans = direct_conversion_classic(vals);
 		os->get() << "Direct transform:" << std::endl;
 		for (auto x : ans) {
@@ -147,6 +153,16 @@ int main() {
 		for (auto x : rev) {
 			os->get() << x << ' ';
 		}
+		os->get() << std::endl;
+		os->get() << "Using Farey fractions: " << std::endl;
+		auto rs = direct_conversion_alt(samp);
+		os->get() << "Direct transform:" << std::endl;
+		rs.print(*os);
+		os->get() << std::endl;
+		os->get() << "Inverse transform:" << std::endl;
+		auto inv = inverse_conversion_alt(rs);
+		inv.print(*os);
+		std::cout << std::setprecision(16) << sinP(2,3, 10).to_long_double();
 
 	}
 	else {
