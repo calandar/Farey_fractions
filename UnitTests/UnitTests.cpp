@@ -125,14 +125,14 @@ namespace UnitTests
 
 	TEST_CLASS(Single_functions) {
 
-		/*TEST_METHOD(Valid_number)
+		TEST_METHOD(Valid_number)
 		{
-			Assert::IsFalse(valid_num("12784.243634"), L"12784.243634");
+			Assert::IsTrue(valid_num("12784.243634"), L"12784.243634");
 			Assert::IsTrue(valid_num("-12784.0"), L"-12784.0");
 			Assert::IsTrue(valid_num("1.2"), L"1.2");
-			Assert::IsFalse(valid_num("101234995.349572598147895706543851351436751368342875137142340398765"), L"101234995.349572598147895706543851351436751368342875137142340398765");
-			Assert::IsFalse(valid_num("-342645276234532723745253462552.12433246423432643264352378"), L"-342645276234532723745253462552.12433246423432643264352378");
-			Assert::IsFalse(valid_num("82345728923"), L"82345728923");
+			Assert::IsTrue(valid_num("101234995.349572598147895706543851351436751368342875137142340398765"), L"101234995.349572598147895706543851351436751368342875137142340398765");
+			Assert::IsTrue(valid_num("-342645276234532723745253462552.12433246423432643264352378"), L"-342645276234532723745253462552.12433246423432643264352378");
+			Assert::IsTrue(valid_num("82345728923"), L"82345728923");
 			Assert::IsFalse(valid_num("-8-2345728923"), L"-8-2345728923");
 			Assert::IsTrue(valid_num("-1"), L"-1");
 			Assert::IsFalse(valid_num("2345.123."), L"2345.123.");
@@ -143,7 +143,7 @@ namespace UnitTests
 			Assert::IsTrue(valid_num("0"), L"0");
 			Assert::IsTrue(valid_num("1.25"), L"1.25");
 			Assert::IsTrue(valid_num("-0.01"), L"-0.01");
-		}*/
+		}
 
 		TEST_METHOD(ZExtract_component) {
 			auto p1 = extract_component("-123.5-0.87i");
@@ -158,6 +158,12 @@ namespace UnitTests
 			Assert::IsTrue(p5.first == "12" && p5.second == "5", L"5");
 			auto p6 = extract_component("0-0i");
 			Assert::IsTrue(p6.first == "0" && p6.second == "0", L"6");
+			auto p7 = extract_component("-935");
+			Assert::IsTrue(p7.first == "-935" && p7.second == "0", L"7");
+			auto p8 = extract_component("-0.38738+13.578i");
+			Assert::IsTrue(p8.first == "-0.38738" && p8.second == "13.578", L"8");
+			auto p9 = extract_component("381.93");
+			Assert::IsTrue(p9.first == "381.93" && p9.second == "0", L"9");
 		}
 
 	};

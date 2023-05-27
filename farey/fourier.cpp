@@ -97,7 +97,7 @@ std::pair<std::string, std::string> extract_component(const std::string& number)
 	}
 	sign = j;	
 	if (!(j == -1 || j == 0) || !imagine) { // есть действительная часть
-		if (j == 0) sign = number.size() - 1;
+		if (j == 0) sign = number.size();
 		std::string re_part = number.substr(0, sign);
 		if (re_part == "-0") re_part = "0";
 		if (!valid_num(re_part)) throw std::invalid_argument("Real part error");
