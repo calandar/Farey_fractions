@@ -5,6 +5,7 @@
 	vec::vec(int128_t m, int128_t n){
 		mod = m;
 		N = n;
+		dim = 0;
 	}
 	vec::vec(const std::vector<int128_t>& big_v, int128_t m, int128_t n) {
 		mod = m; //.

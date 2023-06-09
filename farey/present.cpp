@@ -162,7 +162,7 @@ int main() {
 		os->get() << "Inverse transform:" << std::endl;
 		auto inv = inverse_conversion_alt(rs);
 		inv.print(*os);
-		std::cout << std::setprecision(16) << sinP(2,3, 10).to_long_double();
+		//std::cout << std::setprecision(16) << sinP(2,3, 10).to_long_double();
 
 	}
 	else {

@@ -2,6 +2,9 @@
 #include <exception>
 #include <sstream>
 #include <iomanip>
+#include <fstream>
+
+std::ofstream ofst("log.txt");
 
 component::component(int128_t m, int128_t n) {
 	re = Farey_fraction(m, n, 0, 1);
@@ -121,8 +124,16 @@ std::vector<cplx> direct_conversion_classic(const std::vector<long double>& valu
 	size_t N = values.size();
 	for (size_t i = 0; i < N; i++) {
 		cplx curr;
+		std::stringstream ss1;
+		std::stringstream ss2;
 		for (size_t j = 0; j < N; j++) {
-			cplx tmp(cos(twoPi * i * j / N), -sin(twoPi * i * j / N));
+			long double cs = cos(twoPi * i * j / N);
+			//if (abs(cs) < 1e-12) cs = 0.0;
+			ss1 << std::setprecision(6) << cs;
+			long double sn = -sin(twoPi * i * j / N);
+			//if (abs(sn) < 1e-12) sn = 0.0;
+			ss2 << std::setprecision(6) << sn;
+			cplx tmp(cs, sn);
 			curr = curr + values[j] / N * tmp;
 		}
 		res.push_back(curr);
@@ -136,8 +147,16 @@ std::vector<cplx> inverse_conversion_classic(const std::vector<cplx>& values) {
 	size_t N = values.size();
 	for (size_t i = 0; i < N; i++) {
 		cplx curr;
+		std::stringstream ss1;
+		std::stringstream ss2;
 		for (size_t j = 0; j < N; j++) {
-			cplx tmp(cos(twoPi * i * j / N), sin(twoPi * i * j / N));
+			long double cs = cos(twoPi * i * j / N);
+			//if (abs(cs) < 1e-12) cs = 0.0;
+			ss1 << std::setprecision(6) << cs;
+			long double sn = sin(twoPi * i * j / N);
+			//if (abs(sn) < 1e-12) sn = 0.0;
+			ss2 << std::setprecision(6) << sn;
+			cplx tmp(cs, sn);
 			curr = curr + values[j] * tmp;
 		}
 		res.push_back(curr);
@@ -154,11 +173,11 @@ samples direct_conversion_alt(const std::vector<std::string>& values) {
 		std::stringstream ss2;
 		for (size_t j = 0; j < N; j++) {
 			long double cs = cos(twoPi * i * j / N);
-			if (abs(cs) < 1e-10) cs = 0.0;
-			ss1 << std::setprecision(10) << cs;
+			if (abs(cs) < 1e-12) cs = 0.0;
+			ss1 << std::setprecision(6) << cs;
 			long double sn = -sin(twoPi * i * j / N);
-			if (abs(sn) < 1e-10) sn = 0.0;
-			ss2 << std::setprecision(10) << sn;
+			if (abs(sn) < 1e-12) sn = 0.0;
+			ss2 << std::setprecision(6) << sn;
 			component tmp(ss1.str(), ss2.str());
 			component val(values[j]);
 			curr = curr + val * tmp / N;
@@ -179,14 +198,23 @@ samples inverse_conversion_alt(samples values) {
 		std::stringstream ss2;
 		for (size_t j = 0; j < N; j++) {
 			long double cs = cos(twoPi * i * j / N);
-			if (abs(cs) < 1e-10) cs = 0.0;
-			ss1 << std::setprecision(10) << cs;
+			if (abs(cs) < 1e-12) cs = 0.0;
+			ss1 << std::setprecision(6) << cs;
 			long double sn = sin(twoPi * i * j / N);
-			if (abs(sn) < 1e-10) sn = 0.0;
-			ss2 << std::setprecision(10) << sn;
+			if (abs(sn) < 1e-12) sn = 0.0;
+			ss2 << std::setprecision(6) << sn;
 			component tmp(ss1.str(), ss2.str());
 			component val(values[j]);
+			ofst << "i = " << i << " | j = " << j << " | Curr before:" << curr << " | val = " << val << " | tmp = " << tmp << std::endl;
 			curr = curr + val * tmp;
+			ofst << "Curr after: " << curr << /*" Curr.re num: " << curr.re.get_num() <<*/ " | val * tmp = " << val * tmp << "\n";
+			/*if (curr.re.get_num() < _N) {
+				ofst << "Num is ok\n";
+			}
+			else {
+				ofst << "Num is not ok\n";
+			}*/
+			ofst << " ----------------------------------------------" << std::endl;
 			ss1.str(std::string()); //clear stringstream
 			ss2.str(std::string()); //clear stringstream
 		}

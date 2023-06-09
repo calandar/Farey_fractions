@@ -91,6 +91,14 @@ namespace UnitTests
 			Farey_fraction sub4(_MOD, _N, 97638, 10000);
 			Farey_fraction sub34 = sub3 - sub4;
 			Assert::IsTrue(sub34.get_numerator() == -42669 && sub34.get_denominator() == 5000, L"2");
+
+			Farey_fraction sub5(_MOD, _N, 4);
+			Farey_fraction sub6(_MOD, _N, 9);
+			Farey_fraction sub56 = sub5 - sub6;
+			Assert::IsTrue(sub56.get_num() == _MOD - 5, L"3");
+
+
+
 		}
 		
 		TEST_METHOD(Farey_core_multiply) {
@@ -98,6 +106,16 @@ namespace UnitTests
 			Farey_fraction mul2(_MOD, _N, 13, 6);
 			Farey_fraction mul12 = mul1 * mul2;
 			Assert::IsTrue(mul12.get_numerator() == 65 && mul12.get_denominator() == 12, L"1");
+
+			Farey_fraction mul3(_MOD, _N, _MOD/2 + 1);
+			Farey_fraction mul4(_MOD, _N, 2);
+			Farey_fraction mul34 = mul3 * mul4;
+			Assert::IsTrue(mul34.get_num() == 1,  L"2");
+
+			Farey_fraction mul5(_MOD, _N, _MOD - 1);
+			Farey_fraction mul6(_MOD, _N, _MOD - 1);
+			Farey_fraction mul56 = mul5 * mul6;
+			Assert::IsTrue(mul56.get_num() == 1, L"2");
 		}
 
 		TEST_METHOD(Farey_core_divide) {
@@ -119,6 +137,15 @@ namespace UnitTests
 			Farey_fraction ass2(_MOD, _N, 1, 10);
 			ass2 = "0";
 			Assert::IsTrue(ass2.get_numerator() == 0 && ass2.get_denominator() == 1, L"2");
+		}
+
+		TEST_METHOD(Farey_core_aga) {
+			Farey_fraction fir(_MOD, _N, 5, 2);
+			Farey_fraction sec(_MOD, _N, 10, 4);
+			Assert::IsTrue(fir.get_num() == sec.get_num());
+
+			int128_t a = 37;
+			auto b = Farey_fraction::
 		}
 
 	};

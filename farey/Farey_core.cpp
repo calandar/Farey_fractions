@@ -5,8 +5,10 @@
 bool no_overflow(int128_t  a, int128_t  b) {
     int128_t  sum = a + b;
     int128_t  ssd = a ^ b;
-    if ((ssd >= 0) && ((ssd ^ sum) < 0))
-        return false; 
+    if ((ssd >= 0) && ((ssd ^ sum) < 0)) {
+        std::cout << "Overflow!!" << std::endl;
+        return false;
+    }
     return true;
 }
 
@@ -21,8 +23,8 @@ int128_t  safe_mul(int128_t  x, int128_t  y, int128_t  m) {
     }
     int128_t  res = 0;
     int128_t  iy = y;
-    while (x) {
-        if (x & 1) {
+    while (x > 0) {
+        if (x % 2 == 1) {
             if (!no_overflow(res, iy)) res -= m;
             res = (res + iy) % m;
         }
@@ -32,7 +34,8 @@ int128_t  safe_mul(int128_t  x, int128_t  y, int128_t  m) {
         //x >>= 1;
         x /= 2;
     }
-    if (minus) res *= -1;
+    if (minus) res *= -1; 
+    if (res != ((minus) ? (-1 * x * y) % m : (x * y) % m)) std::cout << "warning safe_mult" << "\n"; //!!!!!!
     return  res;
 }
 
@@ -86,6 +89,7 @@ Farey_fraction::Farey_fraction(int128_t m, int128_t n, int128_t number) {
     mod = m;
     N = n;
     num = number;
+    //std::cout << "number = " << number << " | N = " << N << std::endl;
     Normalize();
     reverse_calc();
 }
@@ -176,7 +180,7 @@ Farey_fraction Farey_fraction::operator + (int64_t rhs) {
 
 Farey_fraction Farey_fraction::operator - (const Farey_fraction& rhs) {
     if (!no_overflow(num, -rhs.get_num())) num += mod; // проверка на переполнение ??? нужна ли
-    Farey_fraction res(mod, N, (num - rhs.get_num()) % mod);
+    Farey_fraction res(mod, N, (num + mod - rhs.get_num() ) % mod); //!!!!!
     return res;
 }
 
@@ -186,12 +190,14 @@ Farey_fraction Farey_fraction::operator - (int64_t rhs) {
 
 
 Farey_fraction Farey_fraction::operator * (const Farey_fraction& rhs) {
-    Farey_fraction res(mod, N, safe_mul(num,rhs.get_num(), mod) % mod);
+    //Farey_fraction res(mod, N, safe_mul(num,rhs.get_num(), mod) % mod);
+    Farey_fraction res(mod, N, (num * rhs.get_num()) % mod);
     return res;
 }
 
 Farey_fraction Farey_fraction::operator / (const Farey_fraction& rhs) {
-    Farey_fraction res(mod, N, safe_mul(num,swapped(rhs).get_num(),mod) % mod);
+    //Farey_fraction res(mod, N, safe_mul(num,swapped(rhs).get_num(),mod) % mod);
+    Farey_fraction res(mod, N, (num * swapped(rhs).get_num()) % mod);
     return res;
 }
 
@@ -280,7 +286,8 @@ void Farey_fraction::calc() {
         inv += mod;
     }
     inv %= mod;
-    num = safe_mul(numerator, inv, mod);
+    //num = safe_mul(numerator, inv, mod);
+    num = numerator * inv % mod;
     Normalize();
 }
 

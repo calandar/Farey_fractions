@@ -10,6 +10,7 @@ const std::string tP = "6.283185307179586476925";
 
 using cplx = std::complex<long double>;
 
+
 struct component {
 	component(int128_t m = _MOD, int128_t n = _N);
 	component(const std::string&, int128_t m = _MOD, int128_t n = _N); // из общего вида комплексных чисел
