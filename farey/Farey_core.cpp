@@ -318,6 +318,7 @@ void Farey_fraction::reverse_calc() {
     int128_t r = 0, q = 0;
     int64_t count = 0;
     while (abs(M[1][0] > N) || abs(M[1][1] > N)) { // 
+    //while ((M[1][0] + mod) % mod > N || (M[1][1] + mod) % mod > N) { //
         r = M[0][0] % M[1][0];
         q = M[0][1] - (M[0][0] / M[1][0]) * M[1][1];
         M[0][0] = M[1][0];
@@ -333,10 +334,16 @@ void Farey_fraction::reverse_calc() {
             return;
         }
     }
-    numerator = (M[1][0] * (M[1][1] / abs(M[1][1])));
+    //numerator = (M[1][0] * (M[1][1] / abs(M[1][1])));
+    numerator = (M[1][1] >= 0) ? M[1][0] : -M[1][0];
     denominator = (abs(M[1][1])); // static cast?
     if (numerator == 0) {
         denominator = 1;
+    }
+    
+    {
+        auto d = Farey_fraction(_MOD, _N, numerator, denominator);
+        if (d.get_num() != num) std::cout << "AAAAAAAAAAAAAAAAA\n";
     }
 }
 

@@ -61,6 +61,7 @@ component& samples::operator [] (size_t index) {
 }
 
 samples::samples(const std::vector<std::string>& cont, int128_t m, int128_t n) {
+	dim = 0;
 	for (size_t i = 0; i < cont.size(); i++) {
 		add(cont[i]);
 	}
@@ -193,7 +194,7 @@ samples inverse_conversion_alt(samples values) {
 	samples res;
 	size_t N = values.get_dim();
 	for (size_t i = 0; i < N; i++) {
-		component curr;
+		component curr{ std::string("0"), std::string("0")};
 		std::stringstream ss1;
 		std::stringstream ss2;
 		for (size_t j = 0; j < N; j++) {
@@ -205,9 +206,20 @@ samples inverse_conversion_alt(samples values) {
 			ss2 << std::setprecision(6) << sn;
 			component tmp(ss1.str(), ss2.str());
 			component val(values[j]);
-			ofst << "i = " << i << " | j = " << j << " | Curr before:" << curr << " | val = " << val << " | tmp = " << tmp << std::endl;
+			ofst << "i = " << i << " | j = " << j << " | Curr before: " << curr << " | val = " << val << " | tmp = " << tmp << std::endl;
+			ofst << "Curr before re num: " << curr.re.get_num() << "\n";
+			ofst << "Curr before im num: " << curr.im.get_num() << "\n";
+			ofst << "Val re double: " << val.re.to_long_double() << "\n";
+			ofst << "Val re num: " << val.re.get_num() << "\n";
+			ofst << "Val im num: " << val.im.get_num() << "\n";
+			ofst << "Tmp re num: " << tmp.re.get_num() << "\n";
+			ofst << "Tmp im num: " << tmp.im.get_num() << "\n";
 			curr = curr + val * tmp;
-			ofst << "Curr after: " << curr << /*" Curr.re num: " << curr.re.get_num() <<*/ " | val * tmp = " << val * tmp << "\n";
+			ofst << "Curr after: " << curr << " Curr.re num: " << curr.re.get_num()  << "\n";
+			ofst << "val * tmp = " << val * tmp << "\n";
+			ofst << "val * tmp re = " << (val * tmp).re.get_num() << "\n";
+			ofst << "val * tmp im = " << (val * tmp).im.get_num() << "\n";
+			ofst << "val * tmp re fraction = " << (val * tmp).re.get_numerator() << '/' << (val * tmp).re.get_denominator() << "\n";
 			/*if (curr.re.get_num() < _N) {
 				ofst << "Num is ok\n";
 			}

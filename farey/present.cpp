@@ -7,6 +7,7 @@
 #include <optional>
 #include <sstream>
 #include <random>
+#include "timer.h"
 
 
 void read_vector(std::vector<long double>& v, std::istream& is = std::cin) {
@@ -67,8 +68,16 @@ int main() {
 				ss >> ld;
 				b1.push_back(ld);
 			}
-			long double s1 = scalar(a, b);
-			long double s2 = scalar(a1, b1);
+			long double s1;
+			{
+				auto t = timer(*os, "Scalar by Farey");
+				s1 = scalar(a, b);
+			}
+			long double s2;
+			{
+				auto t = timer(*os, "Scalar by double");
+				s2 = scalar(a1, b1);
+			}
 			if (op == "1") std::cout << "Results: " << std::endl;
 			os->get() << "Size: " << a.get_dim() << std::endl;
 			os->get() << std::setprecision(25) << "Using Farey fractions: " << s1 << std::endl;
@@ -110,8 +119,16 @@ int main() {
 					l2.push_back(stold(pow_10(j + 3)));
 
 					std::cout << "Alpha = " << i << ", Beta = " << j << std::endl;
-					long double s1 = scalar(f1, f2);
-					long double s2 = scalar(l1, l2);
+					long double s1;
+					{
+						auto t = timer(*os, "Scalar by Farey");
+						s1 = scalar(f1, f2);
+					}
+					long double s2;
+					{
+						auto t = timer(*os, "Scalar by double");
+						s2 = scalar(l1, l2);
+					}
 					std::cout << "-------------------------------------" << std::endl;
 					os->get() << "Alpha = " << i << ", Beta = " << j << std::endl;
 					os->get() << std::setprecision(15) << "Using Farey fractions: " << s1 << std::endl;
@@ -122,7 +139,7 @@ int main() {
 		}
 	}
 	else if (prob == "2"){
-		std::cout << "Input type: \n1 - Console  \n2 - File  \n3 - Scalar product problem   \n >>>: ";
+		std::cout << "Input type: \n1 - Console  \n2 - File  \n3 - Scalar product problem   \n >>>: "; //????????????
 		std::cin >> op;
 		
 		os = ofs;
@@ -134,39 +151,104 @@ int main() {
 		is->get() >> n;
 		std::string curr;
 		long double ld;
+		os->get() << "Input:\n";
 		for (size_t i = 0; i < n; i++) {
 			is->get() >> curr;
 			std::stringstream ss(curr);
 			samp.push_back(curr);
 			ss >> ld;
 			vals.push_back(ld);
+			os->get() << ld << ' ';
 		}
+		os->get() << std::endl;
+		os->get() << std::endl;
+
+		//===========================================================================
+		//блок прямого
 		os->get() << "Using long double: " << std::endl;
-		auto ans = direct_conversion_classic(vals);
+		std::vector<cplx> ans;
+		{
+			auto t = timer(*os, "Direct transform by double");
+			ans = direct_conversion_classic(vals);
+		}
+
 		os->get() << "Direct transform:" << std::endl;
 		for (auto x : ans) {
 			os->get() << x << ' ';
 		}
 		os->get() << std::endl;
-		auto rev = inverse_conversion_classic(ans);
+		os->get() << std::endl;
+		//===========================================================================
+		//блок обратного
+		std::vector<cplx> rev;
+		{
+			auto t = timer(*os, "Inverse transform by double");
+			rev = inverse_conversion_classic(ans);
+		}
+		
 		os->get() << "Inverse transform:" << std::endl;
 		for (auto x : rev) {
 			os->get() << x << ' ';
 		}
 		os->get() << std::endl;
+		os->get() << std::endl;
+		
+		//===========================================================================
+		//блок прямого
 		os->get() << "Using Farey fractions: " << std::endl;
-		auto rs = direct_conversion_alt(samp);
+		samples rs;
+		{
+			auto t = timer(*os, "Direct transform by Farey");
+			rs = direct_conversion_alt(samp);
+		}
+
 		os->get() << "Direct transform:" << std::endl;
 		rs.print(*os);
 		os->get() << std::endl;
+		os->get() << std::endl;
+		
+		//===========================================================================
+		//блок обратного
 		os->get() << "Inverse transform:" << std::endl;
-		auto inv = inverse_conversion_alt(rs);
+		samples inv;
+		{
+			auto t = timer(*os, "Inverse transform by Farey");
+			inv = inverse_conversion_alt(rs);
+		}
 		inv.print(*os);
-		//std::cout << std::setprecision(16) << sinP(2,3, 10).to_long_double();
+
+		//===========================================================================
+		//дельты
+		os->get() << "\n\nDelta double: \n";
+		for (int i = 0; i < rev.size(); ++i) {
+			os->get() << abs(rev[i] - vals[i]) / abs(vals[i]) << ' ';
+		}
+		os->get() << std::endl;
+
+		os->get() << "Delta Farey: \n";
+		for (int i = 0; i < inv.get_dim(); ++i) {
+			os->get() << abs(inv[i].re.to_long_double() - vals[i]) / abs(vals[i]) << ' ';
+		}
+		os->get() << std::endl;
 
 	}
 	else {
-		std::cout << "Problem not found. Exitting...";
+	using namespace std;
+		std::cout << "Problem not found. Exitting...\n";
+		
+		
+			component tmp{ "1"s, "0"s };
+			component val{ "36954.8"s, "0"s };
+
+			component curr{ "0"s, "0"s };
+			std::cout << curr.re.get_num() << '\n';
+			auto res = val * tmp;
+			curr = curr + res;
+
+			//std::cout << res1 << ' ' << curr << '\n';
+
+			std::cout << res.re.get_num() << ' ' << curr.re.get_num() << '\n';
+
 	}
 	return 0;
 }

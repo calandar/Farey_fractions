@@ -1,5 +1,6 @@
 #pragma once
 #include "Farey_core.h"
+#include "timer.h"
 #include <vector>
 #include <cmath>
 #include <complex>
@@ -11,13 +12,15 @@ const std::string tP = "6.283185307179586476925";
 using cplx = std::complex<long double>;
 
 
-struct component {
+class component {
+public:
 	component(int128_t m = _MOD, int128_t n = _N);
 	component(const std::string&, int128_t m = _MOD, int128_t n = _N); // из общего вида комплексных чисел
 	component(const std::string&, const std::string&, int128_t m = _MOD, int128_t n = _N); // на основе действительной и мнимой части
 	component operator + (const component&);
 	component operator / (size_t);
 	component operator * (const component&);
+	//component& operator = (const component& rhs);
 	Farey_fraction re;
 	Farey_fraction im;
 };

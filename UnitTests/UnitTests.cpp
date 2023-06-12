@@ -139,13 +139,24 @@ namespace UnitTests
 			Assert::IsTrue(ass2.get_numerator() == 0 && ass2.get_denominator() == 1, L"2");
 		}
 
-		TEST_METHOD(Farey_core_aga) {
+		TEST_METHOD(Farey_core_any) {
 			Farey_fraction fir(_MOD, _N, 5, 2);
 			Farey_fraction sec(_MOD, _N, 10, 4);
-			Assert::IsTrue(fir.get_num() == sec.get_num());
+			Assert::IsTrue(fir.get_num() == sec.get_num(), L"1");
 
-			int128_t a = 37;
-			auto b = Farey_fraction::
+			Farey_fraction mul1(_MOD, _N, 5, 2);
+			Farey_fraction mul2(_MOD, _N, 3, 4);
+			Farey_fraction mul3(_MOD, _N, 3, 4);
+			Farey_fraction mul4(_MOD, _N, 7, 2);
+			auto res = mul1 * mul2 - mul3 * mul4;
+			Assert::IsTrue(res.get_numerator() == -3 && res.get_denominator() == 4, L"2");
+		}
+
+		TEST_METHOD(Component) {
+			component val{-9238.7, -6712.32};
+			component tmp{ 0.309017, 0.951057 };
+			auto res = val * tmp;
+			
 		}
 
 	};
