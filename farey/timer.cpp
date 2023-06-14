@@ -10,5 +10,5 @@ timer::~timer()
 	auto end = std::chrono::steady_clock::now();
 
 	auto elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin);
-	out << message << ": " << elapsed_ms.count() << " ms\n";
+	out << message << ": \n" << elapsed_ms.count() << " ms\n";
 }

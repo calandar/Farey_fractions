@@ -9,11 +9,98 @@
 #include <random>
 #include "timer.h"
 
+std::ofstream ofst("log.txt");
 
-void read_vector(std::vector<long double>& v, std::istream& is = std::cin) {
-	for (size_t i = 0; i < v.size(); i++) {
-		is >> v[i];
+
+std::pair<std::vector<cplx>, samples> execute_direct(std::optional<std::reference_wrapper<std::ostream>> os, std::pair<std::vector<long double>, std::vector<std::string>> p, bool round) {
+	auto [vals, samp] = p;
+	os->get() << "Direct transform:" << std::endl;
+	os->get() << "Using long double: " << std::endl;
+	std::vector<cplx> ans;
+	{
+		auto t = timer(ofst, "Direct transform by double");
+		ans = direct_conversion_classic(vals);
 	}
+	if (round)
+	for (auto& x : ans) {
+		std::stringstream ss1, ss2;
+		ss1 << std::setprecision(9) << x.real();
+		ss2 << std::setprecision(9) << x.imag();
+		x = { stold(ss1.str()), stold(ss2.str()) };
+	}
+
+	for (auto x : ans) {
+		os->get() << x << ' ';
+	}
+	os->get() << std::endl;
+	os->get() << std::endl;
+
+	os->get() << "Using Farey fractions: " << std::endl;
+	samples rs;
+	{
+		auto t = timer(ofst, "Direct transform by Farey");
+		rs = direct_conversion_alt(samp);
+	}
+	samples rs2;
+	if (round)
+	for (size_t i = 0; i < rs.get_dim(); i++) {
+		std::stringstream ss1, ss2;
+		ss1 << std::setprecision(9) << rs[i].re.to_long_double();
+		ss2 << std::setprecision(9) << rs[i].im.to_long_double();
+		rs2.add(component(ss1.str(), ss2.str()));
+	}
+	
+	rs.print(*os);
+	os->get() << std::endl;
+	os->get() << std::endl;
+	if (round) return { ans, rs2 };
+	return { ans,rs };
+
+}
+
+
+std::pair<std::vector<cplx>, samples> execute_inverse(std::optional<std::reference_wrapper<std::ostream>> os, std::pair<std::vector<cplx>, samples> p) {
+	auto [ans, rs] = p;
+	os->get() << "Inverse transform:" << std::endl;
+	std::vector<cplx> rev;
+	{
+		auto t = timer(ofst, "Inverse transform by double");
+		rev = inverse_conversion_classic(ans);
+	}
+
+	os->get() << "Using long double:" << std::endl;
+	for (auto x : rev) {
+		os->get() << x << ' ';
+	}
+	os->get() << std::endl;
+	os->get() << std::endl;
+
+	os->get() << "Using Farey fractions:" << std::endl;
+	samples inv;
+	{
+		auto t = timer(ofst, "Inverse transform by Farey");
+		inv = inverse_conversion_alt(rs);
+	}
+	inv.print(*os);
+
+	return { rev,inv };
+}
+
+void delta(const std::pair<std::vector<long double>, std::vector<std::string>>& direct, const std::pair<std::vector<cplx>, samples>& inverse) {
+	auto [vals, samp] = direct;
+	auto [rev, inv] = inverse;
+	ofst << "Size " << vals.size() << std::endl;
+	ofst << "Delta double: \n";
+	for (int i = 0; i < rev.size(); ++i) {
+		ofst << abs(rev[i] - vals[i]) / abs(vals[i]) << ' ';
+	}
+	ofst << std::endl;
+
+	ofst << "Delta Farey: \n";
+	for (int i = 0; i < inv.get_dim(); ++i) {
+		ofst << abs(inv[i].re.to_long_double() - vals[i]) / abs(vals[i]) << ' ';
+	}
+	ofst << std::endl;
 }
 
 int main() {
@@ -24,7 +111,7 @@ int main() {
 	std::ofstream ofs("output_test.txt");
 	std::optional<std::reference_wrapper<std::ostream>> os;
 	std::optional<std::reference_wrapper<std::istream>> is;
-
+	
 	std::cout << "Select problem: \n1 - Scalar product \n2 - Discrete Fourier transform  \n >>>: ";
 	std::string prob;
 	std::cin >> prob;
@@ -70,18 +157,18 @@ int main() {
 			}
 			long double s1;
 			{
-				auto t = timer(*os, "Scalar by Farey");
+				auto t = timer(ofst, "Scalar by Farey");
 				s1 = scalar(a, b);
 			}
 			long double s2;
 			{
-				auto t = timer(*os, "Scalar by double");
+				auto t = timer(ofst, "Scalar by double");
 				s2 = scalar(a1, b1);
 			}
 			if (op == "1") std::cout << "Results: " << std::endl;
 			os->get() << "Size: " << a.get_dim() << std::endl;
-			os->get() << std::setprecision(25) << "Using Farey fractions: " << s1 << std::endl;
-			os->get() << std::setprecision(25) << "    Using long double: " << s2 << std::endl;
+			os->get() <<  "Using Farey fractions: " << s1 << std::endl;
+			os->get() <<  "    Using long double: " << s2 << std::endl;
 		}
 		else if (op == "3") {
 			os = ofs;
@@ -121,12 +208,12 @@ int main() {
 					std::cout << "Alpha = " << i << ", Beta = " << j << std::endl;
 					long double s1;
 					{
-						auto t = timer(*os, "Scalar by Farey");
+						auto t = timer(ofst, "Scalar by Farey");
 						s1 = scalar(f1, f2);
 					}
 					long double s2;
 					{
-						auto t = timer(*os, "Scalar by double");
+						auto t = timer(ofst, "Scalar by double");
 						s2 = scalar(l1, l2);
 					}
 					std::cout << "-------------------------------------" << std::endl;
@@ -138,116 +225,110 @@ int main() {
 			}
 		}
 	}
-	else if (prob == "2"){
-		std::cout << "Input type: \n1 - Console  \n2 - File  \n3 - Scalar product problem   \n >>>: "; //????????????
+	else if (prob == "2") {
+		std::cout << "Input type: \n1 - Console  \n2 - File  \n >>>: ";
 		std::cin >> op;
+
+		if (op == "1" || op == "2") {
+			if (op == "1") {
+				os = std::cout;
+				is = std::cin;
+			}
+			else if (op == "2") {
+				os = ofs;
+				is = ifs;
+			}
+			else {
+				std::cout << "Wrong command. Exitting...";
+				return 0;
+			}
+		}
+
+		std::cout << "Select action: \n1 - Direct FT  \n2 - Inverse FT  \n3 - Discrete Fourier problem \n >>>: ";
 		
-		os = ofs;
-		is = ifs;//!!!!
+		std::string ch = "";
+		std::cin >> ch;
+		if (ch == "1") {
+			std::vector<long double> vals;
+			std::vector<std::string> samp;
+			size_t n = 0;
+			if (op == "1") std::cout << "Enter size: ";
+			is->get() >> n;
+			std::string curr;
+			long double ld;
+			os->get() << "Input:\n";
+			for (size_t i = 0; i < n; i++) {
+				is->get() >> curr;
+				std::stringstream ss(curr);
+				samp.push_back(curr);
+				ss >> ld;
+				vals.push_back(ld);
+				if (op == "2") os->get() << ld << ' ';
+			}
+			os->get() << std::endl << std::endl;
 
-		std::vector<long double> vals;
-		std::vector<std::string> samp;
-		size_t n = 0;
-		is->get() >> n;
-		std::string curr;
-		long double ld;
-		os->get() << "Input:\n";
-		for (size_t i = 0; i < n; i++) {
-			is->get() >> curr;
-			std::stringstream ss(curr);
-			samp.push_back(curr);
-			ss >> ld;
-			vals.push_back(ld);
-			os->get() << ld << ' ';
-		}
-		os->get() << std::endl;
-		os->get() << std::endl;
+			auto result = execute_direct(*os, { vals,samp }, false);
 
-		//===========================================================================
-		//блок прямого
-		os->get() << "Using long double: " << std::endl;
-		std::vector<cplx> ans;
-		{
-			auto t = timer(*os, "Direct transform by double");
-			ans = direct_conversion_classic(vals);
 		}
+		else if (ch == "2") {
+			std::vector<cplx> rev;
+			samples inv;
+			size_t n = 0;
+			if (op == "1") {
+				os->get() << "Samples size: ";
+			}
+			is->get() >> n;
+			std::string curr;
+			for (size_t i = 0; i < n; i++) {
+				is->get() >> curr;
+				auto num = extract_component(curr);
+				rev.push_back({stold(num.first), stold(num.second)});
+				inv.add(component(num.first, num.second));
+			}
+			auto result = execute_inverse(*os, { rev,inv });
+		}
+		else if (ch == "3") {
+			std::vector<long double> vals;
+			std::vector<std::string> samp;
+			size_t n = 0;
+			if (ch == "1") {
+				os->get() << "Samples size: ";
+			}
+			is->get() >> n;
+			std::string curr;
+			long double ld;
+			os->get() << "Input:\n";
+			for (size_t i = 0; i < n; i++) {
+				is->get() >> curr;
+				std::stringstream ss(curr);
+				samp.push_back(curr);
+				ss >> ld;
+				vals.push_back(ld);
+				os->get() << ld << ' ';
+			}
+			os->get() << std::endl << std::endl;
 
-		os->get() << "Direct transform:" << std::endl;
-		for (auto x : ans) {
-			os->get() << x << ' ';
-		}
-		os->get() << std::endl;
-		os->get() << std::endl;
-		//===========================================================================
-		//блок обратного
-		std::vector<cplx> rev;
-		{
-			auto t = timer(*os, "Inverse transform by double");
-			rev = inverse_conversion_classic(ans);
-		}
-		
-		os->get() << "Inverse transform:" << std::endl;
-		for (auto x : rev) {
-			os->get() << x << ' ';
-		}
-		os->get() << std::endl;
-		os->get() << std::endl;
-		
-		//===========================================================================
-		//блок прямого
-		os->get() << "Using Farey fractions: " << std::endl;
-		samples rs;
-		{
-			auto t = timer(*os, "Direct transform by Farey");
-			rs = direct_conversion_alt(samp);
-		}
+			auto result1 = execute_direct(*os, { vals,samp }, true);
 
-		os->get() << "Direct transform:" << std::endl;
-		rs.print(*os);
-		os->get() << std::endl;
-		os->get() << std::endl;
-		
-		//===========================================================================
-		//блок обратного
-		os->get() << "Inverse transform:" << std::endl;
-		samples inv;
-		{
-			auto t = timer(*os, "Inverse transform by Farey");
-			inv = inverse_conversion_alt(rs);
-		}
-		inv.print(*os);
+			auto result2 = execute_inverse(*os, result1);
 
-		//===========================================================================
-		//дельты
-		os->get() << "\n\nDelta double: \n";
-		for (int i = 0; i < rev.size(); ++i) {
-			os->get() << abs(rev[i] - vals[i]) / abs(vals[i]) << ' ';
+			delta({vals,samp}, result2);
 		}
-		os->get() << std::endl;
-
-		os->get() << "Delta Farey: \n";
-		for (int i = 0; i < inv.get_dim(); ++i) {
-			os->get() << abs(inv[i].re.to_long_double() - vals[i]) / abs(vals[i]) << ' ';
-		}
-		os->get() << std::endl;
-
 	}
 	else {
-	using namespace std;
 		std::cout << "Problem not found. Exitting...\n";
 		
-		
-			component tmp{ "1"s, "0"s };
-			component val{ "36954.8"s, "0"s };
+			//component tmp{ "1"s, "0"s };
+			//component val{ "36954.8"s, "0"s };
 
-			component curr{ "0"s, "0"s };
-			std::cout << curr.re.get_num() << '\n';
-			auto res = val * tmp;
-			curr = curr + res;
+			//component curr{ "0"s, "0"s };
+			//std::cout << curr.re.get_num() << '\n';
+			//auto res = val * tmp;
+			//curr = curr + res;
 
-			//std::cout << res1 << ' ' << curr << '\n';
+			////std::cout << res1 << ' ' << curr << '\n';
 
-			std::cout << res.re.get_num() << ' ' << curr.re.get_num() << '\n';
+			//std::cout << res.re.get_num() << ' ' << curr.re.get_num() << '\n';
 
 	}
 	return 0;

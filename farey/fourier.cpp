@@ -4,7 +4,7 @@
 #include <iomanip>
 #include <fstream>
 
-std::ofstream ofst("log.txt");
+
 
 component::component(int128_t m, int128_t n) {
 	re = Farey_fraction(m, n, 0, 1);
@@ -206,27 +206,27 @@ samples inverse_conversion_alt(samples values) {
 			ss2 << std::setprecision(6) << sn;
 			component tmp(ss1.str(), ss2.str());
 			component val(values[j]);
-			ofst << "i = " << i << " | j = " << j << " | Curr before: " << curr << " | val = " << val << " | tmp = " << tmp << std::endl;
-			ofst << "Curr before re num: " << curr.re.get_num() << "\n";
-			ofst << "Curr before im num: " << curr.im.get_num() << "\n";
-			ofst << "Val re double: " << val.re.to_long_double() << "\n";
-			ofst << "Val re num: " << val.re.get_num() << "\n";
-			ofst << "Val im num: " << val.im.get_num() << "\n";
-			ofst << "Tmp re num: " << tmp.re.get_num() << "\n";
-			ofst << "Tmp im num: " << tmp.im.get_num() << "\n";
+			//ofst << "i = " << i << " | j = " << j << " | Curr before: " << curr << " | val = " << val << " | tmp = " << tmp << std::endl;
+			//ofst << "Curr before re num: " << curr.re.get_num() << "\n";
+			//ofst << "Curr before im num: " << curr.im.get_num() << "\n";
+			//ofst << "Val re double: " << val.re.to_long_double() << "\n";
+			//ofst << "Val re num: " << val.re.get_num() << "\n";
+			//ofst << "Val im num: " << val.im.get_num() << "\n";
+			//ofst << "Tmp re num: " << tmp.re.get_num() << "\n";
+			//ofst << "Tmp im num: " << tmp.im.get_num() << "\n";
 			curr = curr + val * tmp;
-			ofst << "Curr after: " << curr << " Curr.re num: " << curr.re.get_num()  << "\n";
-			ofst << "val * tmp = " << val * tmp << "\n";
-			ofst << "val * tmp re = " << (val * tmp).re.get_num() << "\n";
-			ofst << "val * tmp im = " << (val * tmp).im.get_num() << "\n";
-			ofst << "val * tmp re fraction = " << (val * tmp).re.get_numerator() << '/' << (val * tmp).re.get_denominator() << "\n";
-			/*if (curr.re.get_num() < _N) {
-				ofst << "Num is ok\n";
-			}
-			else {
-				ofst << "Num is not ok\n";
-			}*/
-			ofst << " ----------------------------------------------" << std::endl;
+			//ofst << "Curr after: " << curr << " Curr.re num: " << curr.re.get_num()  << "\n";
+			//ofst << "val * tmp = " << val * tmp << "\n";
+			//ofst << "val * tmp re = " << (val * tmp).re.get_num() << "\n";
+			//ofst << "val * tmp im = " << (val * tmp).im.get_num() << "\n";
+			//ofst << "val * tmp re fraction = " << (val * tmp).re.get_numerator() << '/' << (val * tmp).re.get_denominator() << "\n";
+			///*if (curr.re.get_num() < _N) {
+			//	ofst << "Num is ok\n";
+			//}
+			//else {
+			//	ofst << "Num is not ok\n";
+			//}*/
+			//ofst << " ----------------------------------------------" << std::endl;
 			ss1.str(std::string()); //clear stringstream
 			ss2.str(std::string()); //clear stringstream
 		}
